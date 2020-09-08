@@ -6,7 +6,7 @@ from models import connect_db, db, User
 from forms import RegisterForm, LoginForm
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///hashing_login"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = "abc123"
@@ -14,7 +14,7 @@ app.config["SECRET_KEY"] = "abc123"
 connect_db(app)
 db.create_all()
 
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 
 @app.route("/")
@@ -29,10 +29,15 @@ def register():
     """Register user: produce form & handle form submission."""
 
     form = RegisterForm()
+    name = form.username.data
+    pwd = form.password.data
+    existing_user_count = User.query.filter_by(username=name).count()
+    if existing_user_count > 0:
+        flash("User already exists")
+        return redirect('/login')
 
     if form.validate_on_submit():
-        name = form.username.data
-        pwd = form.password.data
+       
 
         user = User.register(name, pwd)
         db.session.add(user)
