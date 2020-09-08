@@ -46,7 +46,7 @@ def register():
         session["user_id"] = user.id
 
         # on successful login, redirect to secret page
-        return redirect("/secret")
+        return redirect(f"/users/profile/{user.id}")
 
     else:
         return render_template("register.html", form=form)
@@ -67,7 +67,7 @@ def login():
 
         if user:
             session["user_id"] = user.id  # keep logged in
-            return redirect("/secret")
+            return redirect(f"/users/profile/{user.id}")
 
         else:
             form.username.errors = ["Bad name/password"]
@@ -76,9 +76,10 @@ def login():
 # end-login    
 
 
-@app.route("/secret")
-def secret():
+@app.route("/users/profile/<int:id>")
+def secret(id):
     """Example hidden page for logged-in users only."""
+
 
     if "user_id" not in session:
         flash("You must be logged in to view!")
@@ -90,7 +91,8 @@ def secret():
         # raise Unauthorized()
 
     else:
-        return render_template("secret.html")
+        id = session["user_id"]
+        return render_template("users/profile.html")
 
 
 @app.route("/logout")
