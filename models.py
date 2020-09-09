@@ -83,7 +83,7 @@ class Song(db.Model):
     play_song = db.relationship(
         'Playlist',
         secondary="playlist_song",
-        # cascade="all,delete",
+        cascade="all,delete",
         backref="songs",
     )
 
