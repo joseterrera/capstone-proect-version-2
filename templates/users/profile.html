@@ -11,6 +11,19 @@
 {% for playlist in playlists %}
   <li>
      <a href="/playlists/{{ playlist.id }}">{{ playlist.name }}</a>
+     <form>
+      {{form.hidden_tag()}}
+      <button class="btn btn-primary"
+              formmethod="GET"
+              formaction="/playlists/{{ playlist.id }}/update">
+        Edit
+      </button>
+      <button class="btn btn-danger"
+              formmethod="POST"
+              formaction="/playlists/{{ playlist.id }}/delete">
+        Delete
+      </button>
+    </form>
   </li>
 {% endfor %}
 {% endif %}

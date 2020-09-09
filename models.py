@@ -63,8 +63,11 @@ class Playlist(db.Model):
     """Playlist."""
     __tablename__= "playlists"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
     name = db.Column(db.String(100), nullable=False)
+    
     play_s = db.relationship('PlaylistSong', backref='Playlist')
+    
     song = db.relationship('Song', secondary='playlist_song', backref='playlists')
    
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))

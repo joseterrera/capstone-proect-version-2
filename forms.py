@@ -26,6 +26,8 @@ class PlaylistForm(FlaskForm):
     # description = StringField('Playlist Description', validators=[InputRequired()])
 
 
+class DeleteForm(FlaskForm):
+    """Delete form -- this form is intentionally blank."""
 
 
 class SongForm(FlaskForm):

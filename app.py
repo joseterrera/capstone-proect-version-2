@@ -3,7 +3,7 @@
 from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
-from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm
+from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
@@ -230,40 +230,39 @@ def add_song_to_playlist(playlist_id):
 
 
 
-@app.route("/playlist/<int:id>/update", methods=["GET", "POST"])
-def update_playlist(id):
+@app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])
+def update_playlist(playlist_id):
     """Show update-feedback form and process it."""
 
-    playl = Feedback.query.get(feedback_id)
+    playlist = Playlist.query.get(playlist_id)
 
-    if "username" not in session or feedback.username != session['username']:
+    if "user_id" not in session or playlist.user_id != session['user_id']:
         raise Unauthorized()
 
-    form = FeedbackForm(obj=feedback)
+    form = PlaylistForm(obj=playlist)
 
     if form.validate_on_submit():
-        feedback.title = form.title.data
-        feedback.content = form.content.data
+        playlist.name = form.name.data
 
         db.session.commit()
 
-        return redirect(f"/users/{feedback.username}")
+        return redirect(f"/users/profile/{session['user_id']}")
 
-    return render_template("/feedback/edit.html", form=form, feedback=feedback)
+    return render_template("/playlist/edit.html", form=form, playlist=playlist)
 
 
-@app.route("/feedback/<int:feedback_id>/delete", methods=["POST"])
-def delete_feedback(feedback_id):
-    """Delete feedback."""
+@app.route("/playlists/<int:playlist_id>/delete", methods=["POST"])
+def delete_playlist(playlist_id):
+    """Delete playlist."""
 
-    feedback = Feedback.query.get(feedback_id)
-    if "username" not in session or feedback.username != session['username']:
+    playlist = Playlist.query.get(playlist_id)
+    if "user_id" not in session or playlist.user_id != session['user_id']:
         raise Unauthorized()
 
     form = DeleteForm()
 
     if form.validate_on_submit():
-        db.session.delete(feedback)
+        db.session.delete(playlist)
         db.session.commit()
 
-    return redirect(f"/users/{feedback.username}")
+    return redirect(f"/users/profile/{session['user_id']}")
