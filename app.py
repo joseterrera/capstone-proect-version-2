@@ -211,9 +211,18 @@ def add_song():
         return redirect("/songs")
 
     set_spotify_token(session)
-    # fuck = my_spotify_client.search('all you need is love','track')
-    fuck = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-    return render_template("song/new_song.html", form=form,fuck=json.dumps(fuck))
+    # test = my_spotify_client.search('all you need is love','track')
+    res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
+    # data = res.json()
+    # print('***************data**************')
+    # print('***************data**************')
+    # print('***************data**************')
+    dataj = json.dumps(res)
+
+
+    return render_template("song/new_song.html", form=form, dataj=dataj)
+    
+    # return render_template("song/new_song.html", form=form,test=json.dumps(test))
 
 
 
