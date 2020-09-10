@@ -4,7 +4,10 @@ from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm
-from spotify_api import SpotifyAPI
+from spotify import spotify
+import json
+
+my_spotify_client = spotify.Spotify('2e2cc52be28c4a3dab756d2377edfe72','e75e32f16bed4482b97af54a4249ab94')
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
@@ -61,21 +64,29 @@ def login():
 
     form = LoginForm()
 
-    if form.validate_on_submit():
-        name = form.username.data
-        pwd = form.password.data
+    if not form.validate_on_submit():
+        return render_template("users/login.html", form=form)
+    # otherwise
 
-        # authenticate will return a user or False
-        user = User.authenticate(name, pwd)
+    name = form.username.data
+    pwd = form.password.data
 
-        if user:
-            session["user_id"] = user.id  # keep logged in
-            return redirect(f"/users/profile/{user.id}")
+    # authenticate will return a user or False
+    user = User.authenticate(name, pwd)
 
-        else:
-            form.username.errors = ["Bad name/password"]
+    if not user:
+        return render_template("users/login.html", form=form)
+    # otherwise
 
-    return render_template("users/login.html", form=form)
+    form.username.errors = ["Bad name/password"]
+    my_spotify_client.perform_auth()
+    session["spotify_access_token"] = my_spotify_client.access_token
+    session["spotify_access_token_expires"] = my_spotify_client.access_token_expires
+    session["spotify_access_token_did_expire"] = my_spotify_client.access_token_did_expire
+    session["user_id"] = user.id  # keep logged in
+    return redirect(f"/users/profile/{user.id}")
+
+
 # end-login    
 
 
@@ -175,6 +186,11 @@ def show_song(song_id):
     return render_template("song/song.html", song=song, playlists=playlists)
 
 
+def set_spotify_token(session):
+    my_spotify_client.access_token = session['spotify_access_token']
+    my_spotify_client.access_token_expires = session['spotify_access_token_expires']
+    my_spotify_client.access_token_did_expire = session['spotify_access_token_did_expire']
+
 @app.route("/songs/add", methods=["GET", "POST"])
 def add_song():
     """Handle add-song form:
@@ -194,7 +210,10 @@ def add_song():
         db.session.commit()
         return redirect("/songs")
 
-    return render_template("song/new_song.html", form=form)
+    set_spotify_token(session)
+    # fuck = my_spotify_client.search('all you need is love','track')
+    fuck = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
+    return render_template("song/new_song.html", form=form,fuck=json.dumps(fuck))
 
 
 

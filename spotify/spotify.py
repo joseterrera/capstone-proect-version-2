@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 client_id = '2e2cc52be28c4a3dab756d2377edfe72'
 client_secret = 'e75e32f16bed4482b97af54a4249ab94'
-class SpotifyAPI(object):
+class Spotify(object):
     access_token = None
     access_token_expires = datetime.datetime.now()
     access_token_did_expire = True
@@ -86,6 +86,9 @@ class SpotifyAPI(object):
         if r.status_code not in range(200, 299):
             return {}
         return r.json()
+
+    def get_track(self,_id):
+        return self.get_resource(_id,resource_type='tracks')
     
     def get_album(self, _id):
         return self.get_resource(_id, resource_type='albums')
@@ -102,7 +105,7 @@ class SpotifyAPI(object):
             return {}
         return r.json()
     
-    def search(self, query=None, operator=None, operator_query=None, search_type='artist' ):
+    def search(self, query=None, search_type='artist', operator=None, operator_query=None ):
         if query == None:
             raise Exception("A query is required")
         if isinstance(query, dict):
