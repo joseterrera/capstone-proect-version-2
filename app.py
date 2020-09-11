@@ -6,8 +6,9 @@ from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm
 from spotify import spotify
 import json
+from api import CLIENT_ID, CLIENT_SECRET
 
-my_spotify_client = spotify.Spotify('2e2cc52be28c4a3dab756d2377edfe72','e75e32f16bed4482b97af54a4249ab94')
+my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
