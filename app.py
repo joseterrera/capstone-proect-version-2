@@ -104,6 +104,7 @@ def profile(id):
     else:
         id = session["user_id"]
         form = PlaylistForm()
+        user = User.query.get_or_404(id)
         playlists = Playlist.query.filter_by(user_id=id).all()
         if form.validate_on_submit(): 
             name = form.name.data
@@ -112,7 +113,7 @@ def profile(id):
             db.session.commit()
             playlists.append(new_playlist)
             return redirect(f"/users/profile/{id}")
-        return render_template("users/profile.html", playlists=playlists, form=form)
+        return render_template("users/profile.html", playlists=playlists, form=form, user=user)
 
 
 @app.route("/logout")
@@ -259,11 +260,38 @@ def add_song_to_playlist(playlist_id):
     return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
 
 
+@app.route('/playlists/<int:playlist_id>/add-songs', methods=["GET", "POST"])
+def add_new_songs(playlist_id):
+    playlist = Playlist.query.get(playlist_id)
 
+    if "user_id" not in session or playlist.user_id != session['user_id']:
+        raise Unauthorized()
+    
+    set_spotify_token(session)
+    req = request.args
+    print('**************************')
+    print('**************************')
+    print('**************************')
+    
+    print('req',req)
+    track = request.args['track']
+    print('here@@@@@@@@@')
+    print('here@@@@@@@@@')
+    
+    print('track', track)
+
+    test = my_spotify_client.search(track,'track')
+
+    res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
+    # res = my_spotify_client.get_track(track)
+
+    dataj = json.dumps(res)
+
+    return render_template("song/add_song.html", playlist=playlist, dataj=dataj)
 
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])
 def update_playlist(playlist_id):
-    """Show update-feedback form and process it."""
+    """Show page that updates playlist name and searches for songs"""
 
     playlist = Playlist.query.get(playlist_id)
 
@@ -271,19 +299,26 @@ def update_playlist(playlist_id):
         raise Unauthorized()
 
     form = PlaylistForm(obj=playlist)
+
+
+
     set_spotify_token(session)
     # test = my_spotify_client.search('all you need is love','track')
-    if request.method == 'POST':
-        req = request.form
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        
-        print('req',req)
-    track = request.form
-    # res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-    res = my_spotify_client.get_track(track)
     
+    # req = request.args
+    # print('**************************')
+    # print('**************************')
+    # print('**************************')
+    
+    # print('req',req)
+    # track = request.args.get['track']
+    # print('here@@@@@@@@@')
+    # print('here@@@@@@@@@')
+    
+    # print('track', track)
+    res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
+    # res = my_spotify_client.get_track(track)
+
     dataj = json.dumps(res)
     # data = res.json()
     # print('***************data**************')
