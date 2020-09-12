@@ -281,6 +281,7 @@ def update_playlist(playlist_id):
     return render_template("/playlist/edit.html", form=form, playlist=playlist)
 
 
+
 @app.route("/playlists/<int:playlist_id>/delete", methods=["POST"])
 def delete_playlist(playlist_id):
     """Delete playlist."""
