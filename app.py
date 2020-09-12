@@ -289,9 +289,18 @@ def add_new_songs(playlist_id):
 
     return render_template("song/add_song.html", playlist=playlist, dataj=dataj)
 
+
+# @app.route('/playlists/<int:playlist_id>/search', methods=["GET", "POST"])
+# def search_new_songs(playlist_id):
+#     """Show page that searches new songs"""
+
+#     playlist = Playlist.query.get(playlist_id)
+#     return render_template('song/search_new_songs.html', playlist=playlist)
+
+
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])
 def update_playlist(playlist_id):
-    """Show page that updates playlist name and searches for songs"""
+    """Show page that updates playlist name"""
 
     playlist = Playlist.query.get(playlist_id)
 
