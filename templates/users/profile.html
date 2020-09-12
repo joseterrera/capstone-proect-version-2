@@ -13,6 +13,11 @@
      <a href="/playlists/{{ playlist.id }}">{{ playlist.name }}</a>
      <form>
       {{form.hidden_tag()}}
+      <button class="btn btn-info"
+      formmethod="GET"
+      formaction="/playlists/{{ playlist.id }}/update">
+      Edit Playlist Name
+    </button>
       <button class="btn btn-primary"
               formmethod="GET"
               formaction="/playlists/{{ playlist.id }}/update">
