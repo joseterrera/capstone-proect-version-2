@@ -5,6 +5,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm
 from spotify import spotify
+import requests
 import json
 from api import CLIENT_ID, CLIENT_SECRET
 
@@ -270,15 +271,34 @@ def update_playlist(playlist_id):
         raise Unauthorized()
 
     form = PlaylistForm(obj=playlist)
+    set_spotify_token(session)
+    # test = my_spotify_client.search('all you need is love','track')
+    if request.method == 'POST':
+        req = request.form
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        
+        print('req',req)
+    track = request.form
+    # res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
+    res = my_spotify_client.get_track(track)
+    
+    dataj = json.dumps(res)
+    # data = res.json()
+    # print('***************data**************')
+    # print('***************data**************')
+    # print('***************data******
 
-    if form.validate_on_submit():
-        playlist.name = form.name.data
 
-        db.session.commit()
+    # if form.validate_on_submit():
+    #     playlist.name = form.name.data
 
-        return redirect(f"/users/profile/{session['user_id']}")
+    #     db.session.commit()
 
-    return render_template("/playlist/edit.html", form=form, playlist=playlist)
+    #     return redirect(f"/users/profile/{session['user_id']}")
+
+    return render_template("/playlist/edit.html", form=form, playlist=playlist, dataj=dataj)
 
 
 @app.route("/playlists/<int:playlist_id>/delete", methods=["POST"])

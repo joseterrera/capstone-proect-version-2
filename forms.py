@@ -25,6 +25,10 @@ class PlaylistForm(FlaskForm):
     name = StringField("Playlist Name", validators=[InputRequired()])
     # description = StringField('Playlist Description', validators=[InputRequired()])
 
+# class EditPlaylist(FlaskForm):
+#     name = StringField('Edit Playlist Name')
+#     searchSongs = StringField('Search New Songs')
+#     searchArtists = StringField('Search New Artists')
 
 class DeleteForm(FlaskForm):
     """Delete form -- this form is intentionally blank."""
@@ -35,6 +39,7 @@ class SongForm(FlaskForm):
     # Add the necessary code to use this form
     title = StringField("Song Title", validators=[InputRequired()] )
     artist = StringField("Artist Name", validators=[InputRequired()] )
+
 
 
 # DO NOT MODIFY THIS FORM - EVERYTHING YOU NEED IS HERE

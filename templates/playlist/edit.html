@@ -6,7 +6,7 @@
 
 <h1>Edit Playlist</h1>
 
-<form method="POST" action="/playlists/{{ playlist.id }}/update">
+<!-- <form method="POST" action="/playlists/{{ playlist.id }}/update">
 
   {{form.hidden_tag()}}
   
@@ -31,8 +31,31 @@
 
   {% endfor %}
 
-  <button class="btn btn-primary">Edit!</button>
-</form>
+  <button class="btn btn-primary">Edit Playlist name</button>
+</form> -->
+
+
+  <form method="POST" action="/playlists/{{ playlist.id }}/update">
+
+    <div class="form-group row mt-3">
+      <label for="track-search" class="col-sm-2">Search New Songs</label>
+      <div class="col-sm-10">
+        <input class="form-control" id='track-search' type="text" name="track" placeholder="Add songs to your playlist">
+      </div>
+   
+    </div>
+
+
+    <button class="btn btn-primary" track-search">Search Songs</button>
+    <div class="form-group row mt-3">
+      <label for="artist-search" class="col-sm-2">Search New Artists</label>
+      <div class="col-sm-10">
+        <input class="form-control" type="text" name="artist" placeholder="Search for new artists" >
+      </div>
+   
+    </div>
+    <button class="btn btn-primary" artist-search">Search Artists</button>
+  </form>
 
 {% endblock %}
 
