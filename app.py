@@ -258,6 +258,45 @@ def add_song_to_playlist(playlist_id):
     return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
 
 
+@app.route('/playlists/<int:playlist_id>/search', methods=["GET"])
+def search_new_songs(playlist_id):
+    """Show page that searches new songs"""
+
+    playlist = Playlist.query.get(playlist_id)
+    
+    return render_template('song/search_new_songs.html', playlist=playlist)
+
+
+@app.route('/playlists/<int:playlist_id>/see-songs-results', methods=["GET", "POST"])
+def see_songs_results(playlist_id):
+    playlist = Playlist.query.get(playlist_id)
+
+    req = request.args
+    print('req',req)
+    track = request.args['track']
+    print('here@@@@@@@@@')
+    print('here@@@@@@@@@')
+    
+    print('track', track)
+    # res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
+    # test = my_spotify_client.search('all you need is love','track')
+    test = my_spotify_client.search(track,'track')
+
+    # res = my_spotify_client.get_track(track)
+    results = []
+    for item in test['tracks']['items']:
+        results.append([ item['name'],item['id'], item['artists'], item['album']['name'], item['album']['images'] ])
+    raise 'f'
+    # dataj = json.dumps(res)
+    dataj = json.dumps(test)
+
+    return render_template('song/see_songs_results.html', playlist=playlist, dataj=dataj, results=results)
+
+
+@app.route('/playlists/<int:playlist_id>/see-artists-results', methods=["GET", "POST"])
+def see_artists_results(playlist_id):
+    playlist = Playlist.query.get(playlist_id)
+    return render_template('song/see_artists_results.html', playlist=playlist)
 
 
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])

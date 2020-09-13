@@ -1,0 +1,28 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+
+<h1>Add songs to playlist {{playlist.name}}</h1>
+<form method="GET" action="/playlists/{{ playlist.id }}/see-songs-results">
+
+  <div class="form-group row mt-3">
+    <label for="track-search" class="col-sm-2">Search New Songs</label>
+    <div class="col-sm-10">
+      <input class="form-control" id='track-search' type="text" name="track" placeholder="Add songs to your playlist">
+    </div>
+ 
+  </div>
+
+
+  <button class="btn btn-primary" track-search">Search Songs</button>
+  <div class="form-group row mt-3">
+    <label for="artist-search" class="col-sm-2">Search New Artists</label>
+    <div class="col-sm-10">
+      <input class="form-control" type="text" name="artist" placeholder="Search for new artists" >
+    </div>
+ 
+  </div>
+  <button class="btn btn-primary" artist-search">Search Artists</button>
+</form>
+
+{% endblock %}

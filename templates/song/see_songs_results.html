@@ -1,0 +1,24 @@
+<h2>Add songs to {{playlist.name}}</h2>
+
+<!-- {% print(dataj) %} -->
+
+<!-- {% print(resultsTuple) %}-->
+
+
+{% for result in results %}
+<!-- <p>
+  {{result[0]}}
+</p>
+<small>
+  {{result[1]}} -->
+
+<!-- </small> -->
+
+<div>
+  <input type="checkbox" id="{{ result[1] }}" name="track" value="{{ result[0] }} ">
+  <label for="{{result[0] }}">{{ result[0]}}</label>
+</div>
+
+
+
+{% endfor %}
