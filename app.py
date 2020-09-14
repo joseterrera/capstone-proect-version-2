@@ -332,55 +332,31 @@ def search_new_songs(playlist_id):
 @app.route('/playlists/<int:playlist_id>/see-songs-results', methods=["GET", "POST"])
 def see_songs_results(playlist_id):
     playlist = Playlist.query.get(playlist_id)
-    req = request.args
-    print('req',req)
+    # req = request.args
     track = request.args['track']
-    print('here@@@@@@@@@')
-    print('here@@@@@@@@@')
-
-
-
-
-    print('track', track)
-    # res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-    # test = my_spotify_client.search('all you need is love','track')
-    test = my_spotify_client.search(track,'track')
-
-    # res = my_spotify_client.get_track(track)
+    # print('here@@@@@@@@@')
+    # print('track', track)
+    api_call_track = my_spotify_client.search(track,'track')
     resultsSong = []
-    # resultsArtistName = []
-    # resultsArtistAlbum = []
 
-    for item in test['tracks']['items']:
-        # album_images = item['album']['images']
-        # album_image_object = album_images[0] if len(album_images) else {url: ''}
-        # album_image = album_image_object['url']
+    for item in api_call_track['tracks']['items']:
         images = [ image['url'] for image in item['album']['images'] ]
         artists = [ artist['name'] for artist in item['artists'] ]
+        urls = item['album']['external_urls']['spotify']
         resultsSong.append({
             **pick(item,'name','id'),
             'album_name': item['album']['name'], 
             'album_image': first(images,''),
-            'artists': artists
-
-            # 'album_image': map(pick_in_map('url'), item['album']['images'] ),
-            # 'album_image': first([ image['url'] for image in item['album']['images'] ],''),
-            # 'artists_list': first([ artist['name'] for artist in item['artists'] ],'')]
+            'artists': artists,
+            'url': urls
         })
 
+    dataj = json.dumps(api_call_track)
+    print('dataj')
+    # print(dataj)
+    print(resultsSong)
 
-
-    # for item in test['tracks']['items']:
-    #     image = item['album']['images']
-    #     resultsArtistAlbum.append(image['url'])
-
-
-    
-    # raise 'love GOD'
-    # dataj = json.dumps(res)
-    dataj = json.dumps(test)
-
-    return render_template('song/see_songs_results.html', playlist=playlist, dataj=dataj, resultsSong=resultsSong)
+    return render_template('song/see_songs_results.html', playlist=playlist, resultsSong=resultsSong)
 
 
 @app.route('/playlists/<int:playlist_id>/see-artists-results', methods=["GET", "POST"])

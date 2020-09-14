@@ -16,10 +16,12 @@
 
 <div>
   <input type="checkbox" id="{{ result['id'] }}" name="track" value="{{ result['id'] }} ">
-  <label for="{{ result['id'] }}">{{ result['name']}}</label>
+  <label for="{{ result['id'] }}"><a href="{{result['url']}}" target="_blank">{{ result['name']}}</a></label>
   <img src="{{ result['album_image'] }}" width=200 />
 </div>
 
+
+<!-- {% print(resultsSong) %} -->
 
 
 {% endfor %}
