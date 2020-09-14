@@ -10,7 +10,68 @@ from api import CLIENT_ID, CLIENT_SECRET
 
 my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
 
+def pick_from_list(keys,dict):
+  return { your_key: dict[your_key] for your_key in keys }
+
+def pick(dict,*keys):
+  return pick_from_list(keys,dict)
+
+def pick_in_map(*keys):
+  def pick(dict):
+    return pick_from_list(keys,dict)
+  return pick
+
+
+def first(iterable, default = None, condition = lambda x: True):
+    """
+    Returns the first item in the `iterable` that
+    satisfies the `condition`.
+
+    If the condition is not given, returns the first item of
+    the iterable.
+
+    If the `default` argument is given and the iterable is empty,
+    or if it has no items matching the condition, the `default` argument
+    is returned if it matches the condition.
+
+    The `default` argument being None is the same as it not being given.
+
+    Raises `StopIteration` if no item satisfying the condition is found
+    and default is not given or doesn't satisfy the condition.
+
+    >>> first( (1,2,3), condition=lambda x: x % 2 == 0)
+    2
+    >>> first(range(3, 100))
+    3
+    >>> first( () )
+    Traceback (most recent call last):
+    ...
+    StopIteration
+    >>> first([], default=1)
+    1
+    >>> first([], default=1, condition=lambda x: x % 2 == 0)
+    Traceback (most recent call last):
+    ...
+    StopIteration
+    >>> first([1,3,5], default=1, condition=lambda x: x % 2 == 0)
+    Traceback (most recent call last):
+    ...
+    StopIteration
+    """
+
+    try:
+        return next(x for x in iterable if condition(x))
+    except StopIteration:
+        if default is not None and condition(default):
+            return default
+        else:
+            raise
+
+
 app = Flask(__name__)
+# the toolbar is only enabled in debug mode:
+app.debug = True
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
@@ -19,7 +80,8 @@ app.config["SECRET_KEY"] = "abc123"
 connect_db(app)
 db.create_all()
 
-# toolbar = DebugToolbarExtension(app)
+
+toolbar = DebugToolbarExtension(app)
 
 
 @app.route("/")
@@ -270,27 +332,54 @@ def search_new_songs(playlist_id):
 @app.route('/playlists/<int:playlist_id>/see-songs-results', methods=["GET", "POST"])
 def see_songs_results(playlist_id):
     playlist = Playlist.query.get(playlist_id)
-
     req = request.args
     print('req',req)
     track = request.args['track']
     print('here@@@@@@@@@')
     print('here@@@@@@@@@')
-    
+
+
+
+
     print('track', track)
     # res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
     # test = my_spotify_client.search('all you need is love','track')
     test = my_spotify_client.search(track,'track')
 
     # res = my_spotify_client.get_track(track)
-    results = []
+    resultsSong = []
+    # resultsArtistName = []
+    # resultsArtistAlbum = []
+
     for item in test['tracks']['items']:
-        results.append([ item['name'],item['id'], item['artists'], item['album']['name'], item['album']['images'] ])
-    raise 'f'
+        # album_images = item['album']['images']
+        # album_image_object = album_images[0] if len(album_images) else {url: ''}
+        # album_image = album_image_object['url']
+        images = [ image['url'] for image in item['album']['images'] ]
+        artists = [ artist['name'] for artist in item['artists'] ]
+        resultsSong.append({
+            **pick(item,'name','id'),
+            'album_name': item['album']['name'], 
+            'album_image': first(images,''),
+            'artists': artists
+            # 'album_image': map(pick_in_map('url'), item['album']['images'] ),
+            # 'album_image': first([ image['url'] for image in item['album']['images'] ],''),
+            # 'artists_list': first([ artist['name'] for artist in item['artists'] ],'')]
+        })
+
+
+
+    # for item in test['tracks']['items']:
+    #     image = item['album']['images']
+    #     resultsArtistAlbum.append(image['url'])
+
+
+    
+    # raise 'love GOD'
     # dataj = json.dumps(res)
     dataj = json.dumps(test)
 
-    return render_template('song/see_songs_results.html', playlist=playlist, dataj=dataj, results=results)
+    return render_template('song/see_songs_results.html', playlist=playlist, dataj=dataj, resultsSong=resultsSong)
 
 
 @app.route('/playlists/<int:playlist_id>/see-artists-results', methods=["GET", "POST"])
