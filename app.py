@@ -362,6 +362,7 @@ def see_songs_results(playlist_id):
             'album_name': item['album']['name'], 
             'album_image': first(images,''),
             'artists': artists
+
             # 'album_image': map(pick_in_map('url'), item['album']['images'] ),
             # 'album_image': first([ image['url'] for image in item['album']['images'] ],''),
             # 'artists_list': first([ artist['name'] for artist in item['artists'] ],'')]
