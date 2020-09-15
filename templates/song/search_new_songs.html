@@ -6,7 +6,7 @@
 
 <form method="POST">
   {% include "_form.html" %}
-  <button class="btn btn-primary" type="submit">Add</button>
+  <button class="btn btn-primary" type="submit">Search</button>
 </form>
 
 
@@ -24,14 +24,21 @@
   <button class="btn btn-primary" track-search">Search Songs</button>
 </form> -->
 {% if resultsSong %}
-
-{% for result in resultsSong %}
-<div>
-  <input type="checkbox" id="{{ result['id'] }}" name="track" value="{{ result['id'] }} ">
-  <label for="{{ result['id'] }}"><a href="{{result['url']}}" target="_blank">{{ result['name']}}</a></label>
-  <img src="{{ result['album_image'] }}" width=200 />
+<form class="container" method="POST">
+  <input type="submit" value="Add checked songs" class="add-songs">
+  <div class="container song-results">
+  {% for result in resultsSong %}
+  <div class="song-result">
+    <input type="checkbox" id="{{ result['id'] }}" name="track" value="{{ result['id'] }} ">
+    <label for="{{ result['id'] }}">
+      <a href="{{result['url']}}" target="_blank"> {{ result['name']}} by  {{ result['artists'] }}</a></label>
+    <img src="{{ result['album_image'] }}" width=200 />
+  </div>
+  {%endfor %}
 </div>
-{%endfor %}
+</form>
+
+<!-- <form method="POST"></form> -->
 
 {%endif %}
 

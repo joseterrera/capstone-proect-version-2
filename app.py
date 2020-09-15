@@ -342,26 +342,12 @@ def show_form(playlist_id):
                 **pick(item,'name','id'),
                 'album_name': item['album']['name'], 
                 'album_image': first(images,''),
-                'artists': artists,
+                'artists': ", ".join(artists),
                 'url': urls
             })
-        # raise('fu')
-        # return redirect(f"/playlists/{play_id}/search")
-        # return redirect('/playlists/<int:playlist_id>/search')
 
-#     dataj = json.dumps(api_call_track)
-#     print('dataj')
-#     # print(dataj)
-#     print(resultsSong)
-
-
-        # new_playlist = Playlist(name=name, user_id=session['user_id'])
-        # db.session.add(new_playlist)
-        # db.session.commit()
-        # playlists.append(new_playlist)
-
-
-
+    if request.method == 'POST':
+        return 'Second form only'
     return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
 
 
