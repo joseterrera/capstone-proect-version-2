@@ -4,7 +4,7 @@
 
 <h1>Add songs to playlist {{playlist.name}}</h1>
 
-<form method="GET">
+<form method="POST">
   {% include "_form.html" %}
   <button class="btn btn-primary" type="submit">Add</button>
 </form>
@@ -23,6 +23,7 @@
 
   <button class="btn btn-primary" track-search">Search Songs</button>
 </form> -->
+{% if resultsSong %}
 
 {% for result in resultsSong %}
 <div>
@@ -31,5 +32,7 @@
   <img src="{{ result['album_image'] }}" width=200 />
 </div>
 {%endfor %}
+
+{%endif %}
 
 {% endblock %}

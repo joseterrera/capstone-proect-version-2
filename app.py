@@ -10,11 +10,11 @@ from api import CLIENT_ID, CLIENT_SECRET
 
 my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
 
-# def pick_from_list(keys,dict):
-#   return { your_key: dict[your_key] for your_key in keys }
+def pick_from_list(keys,dict):
+  return { your_key: dict[your_key] for your_key in keys }
 
-# def pick(dict,*keys):
-#   return pick_from_list(keys,dict)
+def pick(dict,*keys):
+  return pick_from_list(keys,dict)
 
 # def pick_in_map(*keys):
 #   def pick(dict):
@@ -70,7 +70,7 @@ def first(iterable, default = None, condition = lambda x: True):
 
 app = Flask(__name__)
 # the toolbar is only enabled in debug mode:
-app.debug = True
+# app.debug = True
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
@@ -81,6 +81,8 @@ connect_db(app)
 
 
 toolbar = DebugToolbarExtension(app)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
 
 
 @app.route("/")
@@ -319,14 +321,16 @@ def add_song():
 #     return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
 
 
-@app.route('/playlists/<int:playlist_id>/search', methods=["GET"])
+@app.route('/playlists/<int:playlist_id>/search', methods=["GET", "POST"])
 def show_form(playlist_id):
     """Show form that searches new form, and show results"""
     playlist = Playlist.query.get(playlist_id)
+    play_id  = playlist_id
     form = SearchSongsForm()
     resultsSong = []
 
     if form.validate_on_submit(): 
+        # raise ('fu')
         track = form.track.data
         api_call_track = my_spotify_client.search(track,'track')   
 
@@ -341,6 +345,9 @@ def show_form(playlist_id):
                 'artists': artists,
                 'url': urls
             })
+        # raise('fu')
+        # return redirect(f"/playlists/{play_id}/search")
+        # return redirect('/playlists/<int:playlist_id>/search')
 
 #     dataj = json.dumps(api_call_track)
 #     print('dataj')
@@ -352,7 +359,6 @@ def show_form(playlist_id):
         # db.session.add(new_playlist)
         # db.session.commit()
         # playlists.append(new_playlist)
-        return redirect(f"/playlists/{playlist}/search")
 
 
 
