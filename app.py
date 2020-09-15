@@ -3,23 +3,23 @@
 from flask import Flask, render_template, redirect, session, flash, request
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
-from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm
+from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
 from spotify import spotify
 import json
 from api import CLIENT_ID, CLIENT_SECRET
 
 my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
 
-def pick_from_list(keys,dict):
-  return { your_key: dict[your_key] for your_key in keys }
+# def pick_from_list(keys,dict):
+#   return { your_key: dict[your_key] for your_key in keys }
 
-def pick(dict,*keys):
-  return pick_from_list(keys,dict)
+# def pick(dict,*keys):
+#   return pick_from_list(keys,dict)
 
-def pick_in_map(*keys):
-  def pick(dict):
-    return pick_from_list(keys,dict)
-  return pick
+# def pick_in_map(*keys):
+#   def pick(dict):
+#     return pick_from_list(keys,dict)
+#   return pick
 
 
 def first(iterable, default = None, condition = lambda x: True):
@@ -71,14 +71,13 @@ def first(iterable, default = None, condition = lambda x: True):
 app = Flask(__name__)
 # the toolbar is only enabled in debug mode:
 app.debug = True
-
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = "abc123"
 
 connect_db(app)
-db.create_all()
+# db.create_all()
 
 
 toolbar = DebugToolbarExtension(app)
@@ -289,80 +288,187 @@ def add_song():
 
 
 
-@app.route("/playlists/<int:playlist_id>/add-song", methods=["GET", "POST"])
-def add_song_to_playlist(playlist_id):
-    """Add a playlist and redirect to list."""
+# @app.route("/playlists/<int:playlist_id>/add-song", methods=["GET", "POST"])
+# def add_song_to_playlist(playlist_id):
+#     """Add a playlist and redirect to list."""
     
-    playlist = Playlist.query.get_or_404(playlist_id)
-    form = NewSongForPlaylistForm()
+#     playlist = Playlist.query.get_or_404(playlist_id)
+#     form = NewSongForPlaylistForm()
 
-    # Restrict form to songs not already on this playlist
+#     # Restrict form to songs not already on this playlist
 
-    curr_on_playlist = [s.id for s in playlist.songs]
-    form.song.choices = (db.session.query(Song.id, Song.title).filter(Song.id.notin_(curr_on_playlist)).all())
+#     curr_on_playlist = [s.id for s in playlist.songs]
+#     form.song.choices = (db.session.query(Song.id, Song.title).filter(Song.id.notin_(curr_on_playlist)).all())
 
-    if form.validate_on_submit():
+#     if form.validate_on_submit():
 
-        # This is one way you could do this ...
-        playlist_song = PlaylistSong(song_id=form.song.data, playlist_id=playlist_id)
-        db.session.add(playlist_song)
+#         # This is one way you could do this ...
+#         playlist_song = PlaylistSong(song_id=form.song.data, playlist_id=playlist_id)
+#         db.session.add(playlist_song)
 
-        # Here's another way you could that is slightly more ORM-ish:
-        #
-        # song = Song.query.get(form.song.data)
-        # playlist.songs.append(song)
+#         # Here's another way you could that is slightly more ORM-ish:
+#         #
+#         # song = Song.query.get(form.song.data)
+#         # playlist.songs.append(song)
 
-        # Either way, you have to commit:
-        db.session.commit()
+#         # Either way, you have to commit:
+#         db.session.commit()
 
-        return redirect(f"/playlists/{playlist_id}")
+#         return redirect(f"/playlists/{playlist_id}")
 
-    return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
+#     return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
 
 
 @app.route('/playlists/<int:playlist_id>/search', methods=["GET"])
-def search_new_songs(playlist_id):
-    """Show page that searches new songs"""
-
+def show_form(playlist_id):
+    """Show form that searches new form, and show results"""
     playlist = Playlist.query.get(playlist_id)
-    
-    return render_template('song/search_new_songs.html', playlist=playlist)
-
-
-@app.route('/playlists/<int:playlist_id>/see-songs-results', methods=["GET", "POST"])
-def see_songs_results(playlist_id):
-    playlist = Playlist.query.get(playlist_id)
-    # req = request.args
-    track = request.args['track']
-    # print('here@@@@@@@@@')
-    # print('track', track)
-    api_call_track = my_spotify_client.search(track,'track')
+    form = SearchSongsForm()
     resultsSong = []
 
-    for item in api_call_track['tracks']['items']:
-        images = [ image['url'] for image in item['album']['images'] ]
-        artists = [ artist['name'] for artist in item['artists'] ]
-        urls = item['album']['external_urls']['spotify']
-        resultsSong.append({
-            **pick(item,'name','id'),
-            'album_name': item['album']['name'], 
-            'album_image': first(images,''),
-            'artists': artists,
-            'url': urls
-        })
+    if form.validate_on_submit(): 
+        track = form.track.data
+        api_call_track = my_spotify_client.search(track,'track')   
 
-    dataj = json.dumps(api_call_track)
-    print('dataj')
+        for item in api_call_track['tracks']['items']:
+            images = [ image['url'] for image in item['album']['images'] ]
+            artists = [ artist['name'] for artist in item['artists'] ]
+            urls = item['album']['external_urls']['spotify']
+            resultsSong.append({
+                **pick(item,'name','id'),
+                'album_name': item['album']['name'], 
+                'album_image': first(images,''),
+                'artists': artists,
+                'url': urls
+            })
+
+#     dataj = json.dumps(api_call_track)
+#     print('dataj')
+#     # print(dataj)
+#     print(resultsSong)
+
+
+        # new_playlist = Playlist(name=name, user_id=session['user_id'])
+        # db.session.add(new_playlist)
+        # db.session.commit()
+        # playlists.append(new_playlist)
+        return redirect(f"/playlists/{playlist}/search")
+
+
+
+    return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
+
+
+# @app.route('/playlists/<int:playlist_id>/search', methods=['GET'])
+# def show_results(playlist_id):   
+    # """Show form that searches new form, and show results"""
+    # playlist = Playlist.query.get(playlist_id)
+    # # form = PlaylistForm()
+    # form = PlaylistForm(obj=playlist)
+    # if form.validate_on_submit():
+    #      return 'this'
+    # else:
+    #     return 'that'
+    # raise ('fu')
+
+    # resultsSong = []
+    # if form.validate_on_submit():
+    #     track = request.form['track']
+
+    #     track = request.args.get['track']
+    #     # print('here@@@@@@@@@')
+    #     # print('track', track)
+    #     api_call_track = my_spotify_client.search(track,'track')
+
+    #     for item in api_call_track['tracks']['items']:
+    #         images = [ image['url'] for image in item['album']['images'] ]
+    #         artists = [ artist['name'] for artist in item['artists'] ]
+    #         urls = item['album']['external_urls']['spotify']
+    #         resultsSong.append({
+    #             **pick(item,'name','id'),
+    #             'album_name': item['album']['name'], 
+    #             'album_image': first(images,''),
+    #             'artists': artists,
+    #             'url': urls
+    #         })
+
+    #     dataj = json.dumps(api_call_track)
+    # print('dataj')
     # print(dataj)
-    print(resultsSong)
+    # print(resultsSong)
 
-    return render_template('song/see_songs_results.html', playlist=playlist, resultsSong=resultsSong)
+    # return render_template('song/search_new_songs.html', playlist=playlist, resultsSong=resultsSong)
 
 
-@app.route('/playlists/<int:playlist_id>/see-artists-results', methods=["GET", "POST"])
-def see_artists_results(playlist_id):
-    playlist = Playlist.query.get(playlist_id)
-    return render_template('song/see_artists_results.html', playlist=playlist)
+
+
+# @app.route('/playlists/<int:playlist_id>/search', methods=["GET"])
+# def search_new_songs(playlist_id):
+    # """Show page that searches new songs"""
+
+    # playlist = Playlist.query.get(playlist_id)
+    # playlist = Playlist.query.get(playlist_id)
+    # req = request.args
+    # track = request.args['track']
+    # print('here@@@@@@@@@')
+    # print('track', track)
+    # api_call_track = my_spotify_client.search(track,'track')
+    # resultsSong = []
+
+    # for item in api_call_track['tracks']['items']:
+    #     images = [ image['url'] for image in item['album']['images'] ]
+    #     artists = [ artist['name'] for artist in item['artists'] ]
+    #     urls = item['album']['external_urls']['spotify']
+    #     resultsSong.append({
+    #         **pick(item,'name','id'),
+    #         'album_name': item['album']['name'], 
+    #         'album_image': first(images,''),
+    #         'artists': artists,
+    #         'url': urls
+    #     })
+
+    # dataj = json.dumps(api_call_track)
+    # print('dataj')
+    # print(dataj)
+    # print(resultsSong)
+    
+    # return render_template('song/search_new_songs.html', playlist=playlist)
+
+
+# @app.route('/playlists/<int:playlist_id>/see-songs-results', methods=["GET", "POST"])
+# def see_songs_results(playlist_id):
+#     playlist = Playlist.query.get(playlist_id)
+#     # req = request.args
+#     track = request.args['track']
+#     # print('here@@@@@@@@@')
+#     # print('track', track)
+#     api_call_track = my_spotify_client.search(track,'track')
+#     resultsSong = []
+
+#     for item in api_call_track['tracks']['items']:
+#         images = [ image['url'] for image in item['album']['images'] ]
+#         artists = [ artist['name'] for artist in item['artists'] ]
+#         urls = item['album']['external_urls']['spotify']
+#         resultsSong.append({
+#             **pick(item,'name','id'),
+#             'album_name': item['album']['name'], 
+#             'album_image': first(images,''),
+#             'artists': artists,
+#             'url': urls
+#         })
+
+#     dataj = json.dumps(api_call_track)
+#     print('dataj')
+#     # print(dataj)
+#     print(resultsSong)
+
+#     return render_template('song/see_songs_results.html', playlist=playlist, resultsSong=resultsSong)
+
+
+# @app.route('/playlists/<int:playlist_id>/see-artists-results', methods=["GET", "POST"])
+# def see_artists_results(playlist_id):
+#     playlist = Playlist.query.get(playlist_id)
+#     return render_template('song/see_artists_results.html', playlist=playlist)
 
 
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])

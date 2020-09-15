@@ -3,7 +3,14 @@
 {% block content %}
 
 <h1>Add songs to playlist {{playlist.name}}</h1>
-<form method="GET" action="/playlists/{{ playlist.id }}/see-songs-results">
+
+<form method="GET">
+  {% include "_form.html" %}
+  <button class="btn btn-primary" type="submit">Add</button>
+</form>
+
+
+<!-- <form method="GET" action="/playlists/{{ playlist.id }}/search">
 
   <div class="form-group row mt-3">
     <label for="track-search" class="col-sm-2">Search New Songs</label>
@@ -15,13 +22,14 @@
 
 
   <button class="btn btn-primary" track-search">Search Songs</button>
-</form>
+</form> -->
 
-
+{% for result in resultsSong %}
 <div>
   <input type="checkbox" id="{{ result['id'] }}" name="track" value="{{ result['id'] }} ">
   <label for="{{ result['id'] }}"><a href="{{result['url']}}" target="_blank">{{ result['name']}}</a></label>
   <img src="{{ result['album_image'] }}" width=200 />
 </div>
+{%endfor %}
 
 {% endblock %}
