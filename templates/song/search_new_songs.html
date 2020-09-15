@@ -15,14 +15,13 @@
 
 
   <button class="btn btn-primary" track-search">Search Songs</button>
-  <div class="form-group row mt-3">
-    <label for="artist-search" class="col-sm-2">Search New Artists</label>
-    <div class="col-sm-10">
-      <input class="form-control" type="text" name="artist" placeholder="Search for new artists" >
-    </div>
- 
-  </div>
-  <button class="btn btn-primary" artist-search">Search Artists</button>
 </form>
+
+
+<div>
+  <input type="checkbox" id="{{ result['id'] }}" name="track" value="{{ result['id'] }} ">
+  <label for="{{ result['id'] }}"><a href="{{result['url']}}" target="_blank">{{ result['name']}}</a></label>
+  <img src="{{ result['album_image'] }}" width=200 />
+</div>
 
 {% endblock %}
