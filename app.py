@@ -1,6 +1,6 @@
 """Example flask app that stores passwords hashed with Bcrypt. Yay!"""
 
-from flask import Flask, render_template, redirect, session, flash, request
+from flask import Flask, render_template, redirect, session, flash, request, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
@@ -339,14 +339,19 @@ def show_form(playlist_id):
             artists = [ artist['name'] for artist in item['artists'] ]
             urls = item['album']['external_urls']['spotify']
             resultsSong.append({
-                **pick(item,'name','id'),
+                **pick(item),
+                'title' : item['name'],
+                'spotify_id': item['id'],
                 'album_name': item['album']['name'], 
                 'album_image': first(images,''),
                 'artists': ", ".join(artists),
                 'url': urls
             })
-            raise 'fu'
-            return render_template('song/search_results.html', playlist=playlist, form=form, resultsSong=resultsSong)
+            # raise('fu')
+            return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
+            
+            # raise 'fu'
+            # return render_template('song/search_results.html', playlist=playlist, form=form, resultsSong=resultsSong)
 
     # if request.method == 'POST':
     #     return 'Second form only'
@@ -467,7 +472,7 @@ def show_form(playlist_id):
 
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])
 def update_playlist(playlist_id):
-    """Show update-feedback form and process it."""
+    """Show update form and process it."""
 
     playlist = Playlist.query.get(playlist_id)
 
@@ -478,6 +483,7 @@ def update_playlist(playlist_id):
 
     if form.validate_on_submit():
         playlist.name = form.name.data
+        # raise('fu')
 
         db.session.commit()
 
