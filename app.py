@@ -348,7 +348,7 @@ def show_form(playlist_id):
                 'url': urls
             })
             # raise('fu')
-            return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
+            # return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
             
             # raise 'fu'
             # return render_template('song/search_results.html', playlist=playlist, form=form, resultsSong=resultsSong)
