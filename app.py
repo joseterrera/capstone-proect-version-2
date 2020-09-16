@@ -347,8 +347,6 @@ def show_form(playlist_id):
                 'artists': ", ".join(artists),
                 'url': urls
             })
-            # raise('fu')
-            # return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
             
             # raise 'fu'
             # return render_template('song/search_results.html', playlist=playlist, form=form, resultsSong=resultsSong)
