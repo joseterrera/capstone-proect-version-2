@@ -339,7 +339,7 @@ def show_form(playlist_id):
             artists = [ artist['name'] for artist in item['artists'] ]
             urls = item['album']['external_urls']['spotify']
             resultsSong.append({
-                **pick(item),
+                # **pick(item, ),
                 'title' : item['name'],
                 'spotify_id': item['id'],
                 'album_name': item['album']['name'], 
@@ -347,6 +347,9 @@ def show_form(playlist_id):
                 'artists': ", ".join(artists),
                 'url': urls
             })
+
+            # dataj = json.dumps(api_call_track)
+            # return dataj
             
             # raise 'fu'
             # return render_template('song/search_results.html', playlist=playlist, form=form, resultsSong=resultsSong)
@@ -354,6 +357,9 @@ def show_form(playlist_id):
     # if request.method == 'POST':
     #     return 'Second form only'
     return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
+
+
+# @app.route('/playlists/api/search', methods='POST')
 
 
 # @app.route('/playlists/<int:playlist_id>/search', methods=['GET'])
