@@ -31,7 +31,7 @@
   <div class="song-result">
     <input type="checkbox" id="{{ result['spotify_id'] }}" name="track" value="{{ result['spotify_id'] }} ">
     <label for="{{ result['spotify_id'] }}">
-      <a href="{{result['url']}}" target="_blank"> {{ result['name']}} by  {{ result['artists'] }}</a></label>
+      <a href="{{result['url']}}" target="_blank"> {{ result['title'] }} by  {{ result['artists'] }}</a></label>
       <small>{{ result['spotify_id'] }}</small>
     <img src="{{ result['album_image'] }}" width=200 />
   </div>
