@@ -339,7 +339,6 @@ def show_form(playlist_id):
             artists = [ artist['name'] for artist in item['artists'] ]
             urls = item['album']['external_urls']['spotify']
             resultsSong.append({
-                # **pick(item, ),
                 'title' : item['name'],
                 'spotify_id': item['id'],
                 'album_name': item['album']['name'], 
