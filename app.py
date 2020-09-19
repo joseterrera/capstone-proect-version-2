@@ -328,11 +328,18 @@ def show_form(playlist_id):
     play_id  = playlist_id
     form = SearchSongsForm()
     resultsSong = []
+    
+
+    checkbox_form = request.form
+    if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
+        list_of_picked_songs = checkbox_form.getlist('track')
+        print(checkbox_form)
+        raise 'checkbox'
 
     if form.validate_on_submit(): 
         # raise ('fu')
-        track = form.track.data
-        api_call_track = my_spotify_client.search(track,'track')   
+        track_data = form.track.data
+        api_call_track = my_spotify_client.search(track_data,'track')   
 
         for item in api_call_track['tracks']['items']:
             images = [ image['url'] for image in item['album']['images'] ]
@@ -347,14 +354,8 @@ def show_form(playlist_id):
                 'url': urls
             })
 
-            # dataj = json.dumps(api_call_track)
-            # return dataj
-            
-            # raise 'fu'
-            # return render_template('song/search_results.html', playlist=playlist, form=form, resultsSong=resultsSong)
 
-    # if request.method == 'POST':
-    #     return 'Second form only'
+   
     return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
 
 

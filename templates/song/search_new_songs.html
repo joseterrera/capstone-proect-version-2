@@ -5,8 +5,9 @@
 <h1>Add songs to playlist {{playlist.name}}</h1>
 
 <form method="POST">
-  {% include "_form.html" %}
+  {% include "partials/_form.html" %}
   <button class="btn btn-primary" type="submit">Search</button>
+  <input type="hidden" name="form" value="search_songs">
 </form>
 
 
@@ -36,6 +37,7 @@
   </div>
   {%endfor %}
 </div>
+<input type="hidden" name="form" value="pick_songs">
 </form>
 
 <!-- <form method="POST"></form> -->
