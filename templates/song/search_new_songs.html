@@ -30,7 +30,7 @@
   <div class="container song-results">
   {% for result in resultsSong %}
   <div class="song-result">
-    <input type="checkbox" id="{{ result['spotify_id'] }}" name="track" value="{{ result['spotify_id'] }} ">
+    <input type="checkbox" id="{{ result['spotify_id'] }}" name="track" value="{{ serialize(result) }} ">
     <label for="{{ result['spotify_id'] }}">
       <a href="{{result['url']}}" target="_blank"> {{ result['title']}} by  {{ result['artists'] }}</a></label>
     <img src="{{ result['album_image'] }}" width=200 />

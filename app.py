@@ -332,9 +332,11 @@ def show_form(playlist_id):
 
     checkbox_form = request.form
     if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
-        list_of_picked_songs = checkbox_form.getlist('track')
+        list_of_picked_songs = checkbox_form.getlist('vakue')
+        serialize = json.dumps(list_of_picked_song)
         print(checkbox_form)
-        raise 'checkbox'
+        # raise 'checkbox'
+    # 
 
     if form.validate_on_submit(): 
         # raise ('fu')
