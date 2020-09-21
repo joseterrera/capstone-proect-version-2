@@ -148,8 +148,8 @@ def login():
     session["spotify_access_token_expires"] = my_spotify_client.access_token_expires
     session["spotify_access_token_did_expire"] = my_spotify_client.access_token_did_expire
     session["user_id"] = user.id  # keep logged in
-    # return redirect(f"/users/profile/{user.id}")
-    return render_template('users/login')
+    return redirect(f"/users/profile/{user.id}")
+    # return render_template('users/login')
 
 
 # end-login    
@@ -159,13 +159,14 @@ def login():
 def profile(id):
     """Example hidden page for logged-in users only."""
 
-
     if "user_id" not in session:
         flash("You must be logged in to view!")
         return redirect("/")
 
     else:
         id = session["user_id"]
+        # user = User.query.filter_by(id=id).count()
+        user = User.query.get_or_404(id)
         form = PlaylistForm()
         playlists = Playlist.query.filter_by(user_id=id).all()
         if form.validate_on_submit(): 
@@ -175,7 +176,7 @@ def profile(id):
             db.session.commit()
             playlists.append(new_playlist)
             return redirect(f"/users/profile/{id}")
-        return render_template("users/profile.html", playlists=playlists, form=form)
+        return render_template("users/profile.html", playlists=playlists, form=form, user=user)
 
 
 @app.route("/logout")
@@ -333,10 +334,24 @@ def show_form(playlist_id):
 
     checkbox_form = request.form
     if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
-        list_of_picked_songs = checkbox_form.getlist('vakue')
-        serialize = json.dumps(list_of_picked_songs)
-        # print(checkbox_form)
+        list_of_picked_songs = checkbox_form.getlist('track')
+        # serialize = json.dumps(list_of_picked_songs)
+        # jsonvalue = json.loads(list_of_picked)
+        # checkedSongs = []
+        for item in list_of_picked_songs:
+            jsonvalues = json.loads(item)
+            # checkedSongs.append(title)
+
+
+
         raise 'checkbox'
+        
+        # title = request.form['title']
+        # artist = request.form['artist']
+        # new_song = Song(title=title, artist=artist)
+        # db.session.add(new_song)
+        # db.session.commit()
+        return redirect(f'/playlists/{playlist_id}')
     # 
 
     if form.validate_on_submit(): 
