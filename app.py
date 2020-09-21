@@ -148,7 +148,8 @@ def login():
     session["spotify_access_token_expires"] = my_spotify_client.access_token_expires
     session["spotify_access_token_did_expire"] = my_spotify_client.access_token_did_expire
     session["user_id"] = user.id  # keep logged in
-    return redirect(f"/users/profile/{user.id}")
+    # return redirect(f"/users/profile/{user.id}")
+    return render_template('users/login')
 
 
 # end-login    
