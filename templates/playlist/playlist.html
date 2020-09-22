@@ -18,12 +18,20 @@
 {% if playlist.songs %}
 <p>
   <b>Songs:</b>
+</p>
+<div class="song-results">
   {% for song in playlist.songs %}
-  <p>
-  <a href="/songs/{{ song.id }}"><span class="badge badge-primary">{{ song.title }}</span></a> <small>{{song.artist}}</small>
-</p>
+  <div class="song-result">
+  <a href="/songs/{{ song.id }}">
+    <span class=""><strong>{{ song.title }}</strong><br>
+    </span> by {{ song.artists }}
+    <small>{{song.artist}}</small><br>
+    <span>{{song.album_name}}</span><br>
+    <img class="album-image" src="{{song.album_image}}" />
+  </a> 
+</div>
   {% endfor %}
-</p>
+</div>
 {% else %}
 <p>There are no songs yet on this playlist, add some!</p>
 {% endif %}

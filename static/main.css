@@ -39,6 +39,11 @@
     cursor: pointer;
 }
 
+.album-image {
+  width: 200px;
+  height: auto;
+}
+
 input[type=checkbox] + label {
   display: flex;
   margin: 0.8em;
