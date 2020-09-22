@@ -25,7 +25,9 @@
       <img class="album-image" src="{{song.album_image}}" />
     </a> 
     <form class="remove-button" method="POST">
-    <input type="submit" name='{{song.id}}' value="Remove from Playlist" />
+    <input type="hidden" name="remove" value="true" />
+    <input type="hidden" name="song" value="{{song.id}}" />
+    <input type="submit" name='submit' value="Remove from Playlist" />
     </form>
 </div>
   {% endfor %}

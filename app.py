@@ -198,23 +198,18 @@ def show_playlist(playlist_id):
     # ADD THE NECESSARY CODE HERE FOR THIS ROUTE TO WORK
     playlist = Playlist.query.get_or_404(playlist_id)
     songs = PlaylistSong.query.filter_by(playlist_id=playlist_id)
+    # raise 'hee'
 
 
 
     # for b in songs:
     #     print('testing',b)
     form = request.form
-    if request.method == 'POST':
-        req = request.form
-        # get song id from dictionary
-        song_id = list(req.keys())[0] 
-        song_to_delete = PlaylistSong.query.filter_by(song_id=song_id, playlist_id=playlist_id)
+    if request.method == 'POST' and form['remove'] and form['song']:
+        song_id = form['song']
+        song_to_delete = PlaylistSong.query.get(song_id)
         db.session.delete(song_to_delete)
         db.session.commit()
-
-
-        
-        raise 'her'
 
 
 
