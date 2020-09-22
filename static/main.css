@@ -44,6 +44,11 @@
   height: auto;
 }
 
+.remove-button {
+  margin-top: 20px;
+  margin-left: 1em;
+}
+
 input[type=checkbox] + label {
   display: flex;
   margin: 0.8em;

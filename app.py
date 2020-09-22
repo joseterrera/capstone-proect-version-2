@@ -3,7 +3,7 @@
 from flask import Flask, render_template, redirect, session, flash, request, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
-from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
+from forms import  PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
 from spotify import spotify
 import json
 from api import CLIENT_ID, CLIENT_SECRET
@@ -74,7 +74,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc1234"
+app.config["SECRET_KEY"] = "abc12345"
 
 connect_db(app)
 # db.create_all()
@@ -191,7 +191,7 @@ def logout():
 
 
 
-@app.route("/playlists/<int:playlist_id>")
+@app.route("/playlists/<int:playlist_id>", methods=['POST', 'GET'])
 def show_playlist(playlist_id):
     """Show detail on specific playlist."""
 
@@ -199,8 +199,23 @@ def show_playlist(playlist_id):
     playlist = Playlist.query.get_or_404(playlist_id)
     songs = PlaylistSong.query.filter_by(playlist_id=playlist_id)
 
-    for b in songs:
-        print('testing',b)
+
+
+    # for b in songs:
+    #     print('testing',b)
+    form = request.form
+    if request.method == 'POST':
+        req = request.form
+        # get song id from dictionary
+        song_id = list(req.keys())[0] 
+        song_to_delete = PlaylistSong.query.filter_by(song_id=song_id, playlist_id=playlist_id)
+        db.session.delete(song_to_delete)
+        db.session.commit()
+
+
+        
+        raise 'her'
+
 
 
     return render_template("playlist/playlist.html", playlist=playlist)

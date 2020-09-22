@@ -2,12 +2,8 @@
 
 {% block content %}
 
-<div class="jumbotron">
-  <h1>{{ playlist.name }}!</h1>
-  {% if playlist.description %}
-  <p class="lead">{{ playlist.description }}</p>
-  {% endif %}
-</div>
+
+  <h4>Playlist: <b>{{ playlist.name }}</b></h4>
 
 
 <!-- <div class="text-danger">
@@ -16,19 +12,21 @@
 
 
 {% if playlist.songs %}
-<p>
-  <b>Songs:</b>
+<p>Songs on this playlist:
 </p>
 <div class="song-results">
   {% for song in playlist.songs %}
   <div class="song-result">
-  <a href="/songs/{{ song.id }}">
-    <span class=""><strong>{{ song.title }}</strong><br>
-    </span> by {{ song.artists }}
-    <small>{{song.artist}}</small><br>
-    <span>{{song.album_name}}</span><br>
-    <img class="album-image" src="{{song.album_image}}" />
-  </a> 
+    <a href="/songs/{{ song.id }}">
+      <span class=""><strong>{{ song.title }}</strong><br>
+      </span> by {{ song.artists }}
+      <small>{{song.artist}}</small><br>
+      <span>{{song.album_name}}</span><br>
+      <img class="album-image" src="{{song.album_image}}" />
+    </a> 
+    <form class="remove-button" method="POST">
+    <input type="submit" name='{{song.id}}' value="Remove from Playlist" />
+    </form>
 </div>
   {% endfor %}
 </div>
