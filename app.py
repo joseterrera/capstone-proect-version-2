@@ -74,7 +74,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc123"
+app.config["SECRET_KEY"] = "abc1234"
 
 connect_db(app)
 # db.create_all()
@@ -95,6 +95,7 @@ def homepage():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user: produce form & handle form submission."""
+    # raise 'me'
     if "user_id" in session:
         return redirect(f"/users/profile/{session['user_id']}")
 
@@ -358,8 +359,12 @@ def show_form(playlist_id):
             new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
             db.session.add(new_songs)
             db.session.commit()
+            # raise 'two'
+            playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
+            db.session.add(playlist_song)
+            db.session.commit()
             # raise 'here'
-            return redirect(f'/playlists/{playlist_id}')
+        return redirect(f'/playlists/{playlist_id}')
       
 
 
