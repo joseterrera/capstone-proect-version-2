@@ -338,20 +338,45 @@ def show_form(playlist_id):
         # serialize = json.dumps(list_of_picked_songs)
         # jsonvalue = json.loads(list_of_picked)
         # checkedSongs = []
-        for item in list_of_picked_songs:
-            jsonvalues = json.loads(item)
+        # for item in list_of_picked_songs:
+        #     # you're re-assigning the value of jsonvalues each iteration of the loop
+        #     jsonvalues = json.loads(item)
             # checkedSongs.append(title)
-
-
-
-        raise 'checkbox'
         
+
+
+        # map each item in list of picked
+        jsonvalues = [ json.loads(item) for item in  list_of_picked_songs ]
+
+        for item in jsonvalues:
+            title = item['title']
+            spotify_id = item['spotify_id']
+            album_name = item['album_name']
+            album_image = item['album_image']
+            artists = item['artists']
+            print(title)
+            new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
+            db.session.add(new_songs)
+            db.session.commit()
+            # raise 'here'
+            return redirect(f'/playlists/{playlist_id}')
+      
+
+
+        # listJson = []
+        # for item in list_of_picked_songs:
+        #     listJson.append(json.loads(item))
+
+        # now store this data under the give playlist id
+
+
+        # raise 'checkbox'
+        # 
         # title = request.form['title']
         # artist = request.form['artist']
         # new_song = Song(title=title, artist=artist)
         # db.session.add(new_song)
         # db.session.commit()
-        return redirect(f'/playlists/{playlist_id}')
     # 
 
     if form.validate_on_submit(): 
@@ -373,8 +398,9 @@ def show_form(playlist_id):
             })
 
 
-   
-    return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong)
+    def serialize(obj):
+        return json.dumps(obj)
+    return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong, serialize=serialize)
 
 
 # @app.route('/playlists/api/search', methods='POST')

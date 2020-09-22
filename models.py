@@ -78,11 +78,11 @@ class Song(db.Model):
     """Song."""
     __tablename__= "songs"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(30), nullable=False)
-    artists = db.Column(db.String(30), nullable=False)
-    spotify_id = db.Column(db.String(30), nullable=False)
-    album_name = db.Column(db.String(30), nullable=False)
-    album_image = db.Column(db.String(30), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    artists = db.Column(db.String(255), nullable=False)
+    spotify_id = db.Column(db.String(255), nullable=False)
+    album_name = db.Column(db.String(255), nullable=False)
+    album_image = db.Column(db.String(255), nullable=False)
     
     play_song = db.relationship(
         'Playlist',
