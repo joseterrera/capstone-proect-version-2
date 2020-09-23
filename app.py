@@ -172,8 +172,8 @@ def logout():
 @app.route("/playlists/<int:playlist_id>", methods=['POST', 'GET'])
 def show_playlist(playlist_id):
     """Show detail on specific playlist."""
-    if "user_id" not in session or playlist.user_id != session['user_id']:
-        raise Unauthorized()
+    # if "user_id" not in session or playlist.user_id != session['user_id']:
+    #     raise Unauthorized()
     playlist = Playlist.query.get_or_404(playlist_id)
     songs = PlaylistSong.query.filter_by(playlist_id=playlist_id)
     form = request.form
