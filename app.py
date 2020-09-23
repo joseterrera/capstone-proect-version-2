@@ -66,7 +66,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc12345"
+app.config["SECRET_KEY"] = "abc123456"
 
 connect_db(app)
 # db.create_all()
@@ -182,7 +182,7 @@ def show_playlist(playlist_id):
         song_to_delete = PlaylistSong.query.get(song_id)
         db.session.delete(song_to_delete)
         db.session.commit()
-    return render_template("playlist/playlist.html", playlist=playlist)
+    return render_template("playlist/playlist.html", playlist=playlist, songs=songs)
 
 
 

@@ -85,12 +85,12 @@ class Song(db.Model):
     album_image = db.Column(db.String(255), nullable=False)
     play_song_xref = db.relationship('PlaylistSong', backref='songs', passive_deletes=True)
 
-    # play_song = db.relationship(
-    #     'Playlist',
-    #     secondary="playlist_song",
-    #     cascade="all,delete",
-    #     backref="songs",
-    # )
+    play_song = db.relationship(
+        'Playlist',
+        secondary="playlist_song",
+        cascade="all,delete",
+        backref="songs",
+    )
 
    
 
