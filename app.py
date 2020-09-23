@@ -1,65 +1,13 @@
-"""Example flask app that stores passwords hashed with Bcrypt. Yay!"""
-
 from flask import Flask, render_template, redirect, session, flash, request, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import  PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
 from spotify import spotify
+from helpers import pick, pick_from_list, first
 import json
 from api import CLIENT_ID, CLIENT_SECRET
 
 my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
-
-def pick_from_list(keys,dict):
-  return { your_key: dict[your_key] for your_key in keys }
-
-def pick(dict,*keys):
-  return pick_from_list(keys,dict)
-
-def first(iterable, default = None, condition = lambda x: True):
-    """
-    Returns the first item in the `iterable` that
-    satisfies the `condition`.
-
-    If the condition is not given, returns the first item of
-    the iterable.
-
-    If the `default` argument is given and the iterable is empty,
-    or if it has no items matching the condition, the `default` argument
-    is returned if it matches the condition.
-
-    The `default` argument being None is the same as it not being given.
-
-    Raises `StopIteration` if no item satisfying the condition is found
-    and default is not given or doesn't satisfy the condition.
-
-    >>> first( (1,2,3), condition=lambda x: x % 2 == 0)
-    2
-    >>> first(range(3, 100))
-    3
-    >>> first( () )
-    Traceback (most recent call last):
-    ...
-    StopIteration
-    >>> first([], default=1)
-    1
-    >>> first([], default=1, condition=lambda x: x % 2 == 0)
-    Traceback (most recent call last):
-    ...
-    StopIteration
-    >>> first([1,3,5], default=1, condition=lambda x: x % 2 == 0)
-    Traceback (most recent call last):
-    ...
-    StopIteration
-    """
-
-    try:
-        return next(x for x in iterable if condition(x))
-    except StopIteration:
-        if default is not None and condition(default):
-            return default
-        else:
-            raise
 
 
 app = Flask(__name__)
@@ -81,13 +29,11 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 def homepage():
     """Show homepage with links to site areas."""
     return redirect("/register")
-    # return render_template("index.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user: produce form & handle form submission."""
-    # raise 'me'
     if "user_id" in session:
         return redirect(f"/users/profile/{session['user_id']}")
 
@@ -172,8 +118,10 @@ def logout():
 @app.route("/playlists/<int:playlist_id>", methods=['POST', 'GET'])
 def show_playlist(playlist_id):
     """Show detail on specific playlist."""
-    # if "user_id" not in session or playlist.user_id != session['user_id']:
-    #     raise Unauthorized()
+    
+    if "user_id" not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
     playlist = Playlist.query.get_or_404(playlist_id)
     songs = PlaylistSong.query.filter_by(playlist_id=playlist_id)
     form = request.form
@@ -183,40 +131,6 @@ def show_playlist(playlist_id):
         db.session.delete(song_to_delete)
         db.session.commit()
     return render_template("playlist/playlist.html", playlist=playlist, songs=songs)
-
-
-
-def set_spotify_token(session):
-    my_spotify_client.access_token = session['spotify_access_token']
-    my_spotify_client.access_token_expires = session['spotify_access_token_expires']
-    my_spotify_client.access_token_did_expire = session['spotify_access_token_did_expire']
-
-# @app.route("/songs/add", methods=["GET", "POST"])
-# def add_song():
-#     """Handle add-song form:
-
-#     - if form not filled out or invalid: show form
-#     - if valid: add playlist to SQLA and redirect to list-of-songs
-#     """
-#     form = SongForm()
-#     # songs = Song.query.all()
-
-#     if form.validate_on_submit():
-#         title = request.form['title']
-#         artist = request.form['artist']
-#         new_song = Song(title=title, artist=artist)
-#         db.session.add(new_song)
-#         db.session.commit()
-#         return redirect("/songs")
-
-#     set_spotify_token(session)
-#     # test = my_spotify_client.search('all you need is love','track')
-#     res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-#     dataj = json.dumps(res)
-
-
-#     return render_template("song/new_song.html", form=form, dataj=dataj)
-    
 
 
 @app.route('/playlists/<int:playlist_id>/search', methods=["GET", "POST"])
@@ -229,7 +143,7 @@ def show_form(playlist_id):
     checkbox_form = request.form
     if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
         list_of_picked_songs = checkbox_form.getlist('track')
-        # map each item in list of picked
+        # map each item in list of picked songs
         jsonvalues = [ json.loads(item) for item in  list_of_picked_songs ]
 
         for item in jsonvalues:
