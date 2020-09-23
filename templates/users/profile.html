@@ -2,11 +2,11 @@
 
 {% block content %}
 
-<h1 class="display-5">profile page for user {{user.username }}</h1>
+<h1 class="display-5">Hello {{user.username }}</h1>
 
-<h3>See all the playlists!</h3>
+<h4>This is a private page to add and view your playlists</h4>
 
-<ul>
+<ul class="profile-list">
   {% if 'user_id' in session %}
 {% for playlist in playlists %}
   <li>
@@ -35,10 +35,7 @@ Search new songs for this playlist
 {% endif %}
 </ul>
 
-<!-- <p><a class="btn btn-primary" href="/playlists/add">Add a playlist</a></p> -->
-
-
-<h3>Add a new playlist</h3>
+<h4>Add a new playlist</h4>
 <form method="POST">
   {% include "partials/_form.html" %}
   <button class="btn btn-primary" type="submit">Add</button>

@@ -12,8 +12,6 @@
 
 
 {% if playlist.songs %}
-<p>Songs on this playlist:
-</p>
 <div class="song-results">
   {% for song in playlist.songs %}
   <div class="song-result">
@@ -38,7 +36,7 @@
 
 <p>
   <a class="btn btn-primary" href="/playlists/{{ playlist.id }}/search">
-    Add Song To Playlist
+    Add Songs to this playlist
   </a>
 </p>
 

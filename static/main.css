@@ -1,3 +1,13 @@
+ul.profile-list {
+  list-style-type: none;
+  margin-top: 2em;
+  padding-left: 0;
+}
+ul.profile-list li {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
 .song-results {
   display: flex;
   flex-wrap: wrap;
