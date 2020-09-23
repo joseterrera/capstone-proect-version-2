@@ -110,7 +110,7 @@ def profile(id):
 def logout():
     """Logs user out and redirects to homepage."""
     session.pop("user_id")
-    return redirect("/")
+    return redirect("/login")
 
 
 
