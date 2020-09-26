@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, session, flash, request, url_for
 from flask_debugtoolbar import DebugToolbarExtension
+from werkzeug.exceptions import Unauthorized
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import  PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
 from spotify import spotify
@@ -79,6 +80,7 @@ def login():
     session["spotify_access_token_expires"] = my_spotify_client.access_token_expires
     session["spotify_access_token_did_expire"] = my_spotify_client.access_token_did_expire
     session["user_id"] = user.id  # keep logged in
+    # raise 'login'
     return redirect(f"/users/profile/{user.id}")
 
 
@@ -87,9 +89,15 @@ def login():
 def profile(id):
     """Example hidden page for logged-in users only."""
 
-    if "user_id" not in session:
+    # raise 'here'
+    if "user_id" not in session or id != session['user_id']:
         flash("You must be logged in to view!")
-        return redirect("/")
+        return redirect("/login")
+    # if "user_id" not in session:
+    #     flash("You must be logged in to view!")
+    #     return redirect("/")
+    # elif "user_id" != id:
+    #     raise 
 
     else:
         id = session["user_id"]
@@ -118,11 +126,11 @@ def logout():
 @app.route("/playlists/<int:playlist_id>", methods=['POST', 'GET'])
 def show_playlist(playlist_id):
     """Show detail on specific playlist."""
-    
-    if "user_id" not in session:
-        flash("You must be logged in to view!")
-        return redirect("/")
     playlist = Playlist.query.get_or_404(playlist_id)
+    if "user_id" not in session or  playlist.user_id != session['user_id']:
+        flash("You must be logged in to view!")
+        return redirect("/login")
+    
     songs = PlaylistSong.query.filter_by(playlist_id=playlist_id)
     form = request.form
     if request.method == 'POST' and form['remove'] and form['song']:
