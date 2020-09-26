@@ -141,28 +141,8 @@ def show_form(playlist_id):
     form = SearchSongsForm()
     resultsSong = []
     checkbox_form = request.form
-    if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
-        list_of_picked_songs = checkbox_form.getlist('track')
-        # map each item in list of picked songs
-        jsonvalues = [ json.loads(item) for item in  list_of_picked_songs ]
 
-        for item in jsonvalues:
-            title = item['title']
-            spotify_id = item['spotify_id']
-            album_name = item['album_name']
-            album_image = item['album_image']
-            artists = item['artists']
-            print(title)
-            new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
-            db.session.add(new_songs)
-            db.session.commit()
-
-            playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
-            db.session.add(playlist_song)
-            db.session.commit()
-        return redirect(f'/playlists/{playlist_id}')
-
-    if form.validate_on_submit(): 
+    if form.validate_on_submit() and checkbox_form['form'] == 'search_songs': 
         track_data = form.track.data
         api_call_track = my_spotify_client.search(track_data,'track')   
 
@@ -178,6 +158,47 @@ def show_form(playlist_id):
                 'artists': ", ".join(artists),
                 'url': urls
             })
+
+
+    
+    if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
+        list_of_picked_songs = checkbox_form.getlist('track')
+        # map each item in list of picked songs
+        jsonvalues = [ json.loads(item) for item in  list_of_picked_songs ]
+
+        for item in jsonvalues:
+            title = item['title']
+            spotify_id = item['spotify_id']
+            album_name = item['album_name']
+            album_image = item['album_image']
+            artists = item['artists']
+            print(title)
+            new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
+            for i in playlist.song: 
+                if i.title == new_songs.title:
+                    repeated = []
+                    repeated.append(new_songs.title)
+            raise 'here'
+    
+                    # flash(f"{repeated} already on this playlist")
+                    # playlist.song.remove(i)
+                    # db.session.add(new_songs)
+                    # db.session.commit()
+                    # playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
+                    # db.session.add(playlist_song)
+                    # db.session.commit()
+                    # # return redirect(f'/playlists/{playlist_id}/search')
+                    # return redirect(f'/playlists/{playlist_id}')
+     
+            db.session.add(new_songs)
+            db.session.commit()
+
+            playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
+            db.session.add(playlist_song)
+            db.session.commit()
+        return redirect(f'/playlists/{playlist_id}')
+
+
 
     def serialize(obj):
         return json.dumps(obj)

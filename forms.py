@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
-from wtforms.validators import InputRequired
+from wtforms.validators import InputRequired, EqualTo
 from wtforms import StringField, IntegerField, SelectField, TextAreaField, BooleanField, PasswordField
 from wtforms.validators import InputRequired, Length, NumberRange, URL, Optional
 
@@ -8,7 +8,8 @@ class RegisterForm(FlaskForm):
     """Form for registering a user."""
 
     username = StringField("Username", validators=[InputRequired()])
-    password = PasswordField("Password", validators=[InputRequired()])
+    password = PasswordField("Password", validators=[InputRequired(), EqualTo('confirm', message='Passwords must match') ])
+    confirm  = PasswordField('Repeat Password')
 
 
 class LoginForm(FlaskForm):
@@ -23,6 +24,7 @@ class PlaylistForm(FlaskForm):
     """Form for adding playlists."""
     # Add the necessary code to use this form
     name = StringField("Playlist Name", validators=[InputRequired()])
+
 
 
 class SearchSongsForm(FlaskForm):
