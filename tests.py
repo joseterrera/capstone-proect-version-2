@@ -65,15 +65,14 @@ import os
 from unittest import TestCase
 from flask import session
 
-from models import db, Playlist, User
 
 
 
 # Use test database and don't clutter tests with SQL
-# os.environ['DATABASE_URL'] = "postgresql:///new_music-test"
+os.environ['DATABASE_URL'] = "postgresql:///new_music-test"
 from app import app
 from models import db, connect_db, Playlist, User
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music-test'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music-test'
 # app.config['SQLALCHEMY_ECHO'] = False
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -88,19 +87,62 @@ class musicAppTestCases(TestCase):
   # with app.test_client() as client:
   #   import pdb
   #   pdb.set_trace() 
+  def setUp(self):
+    """Create test client, add sample data."""
+
+    db.drop_all()
+    db.create_all()
+
+    self.client = app.test_client()
+
+    self.testuser = User.register(username="testuser",
+                                pwd="testuser")
+    self.testuser_id = 1
+    self.testuser.id = self.testuser_id
+
+    db.session.commit()
+
+  def tearDown(self):
+    #  resp is being set to be a class that has all the attributes of the tearDown() built in unittest method.
+    #  res runs the tearDown, which means it will happen after each test.
+
+    resp = super().tearDown()
+    db.session.rollback()
+    return resp
+
+
   def test_redirectHomepage(self):
     with app.test_client() as client:
       res = client.get('/', follow_redirects=True)
+  
 
-  def test_logout(self):
-    with app.test_client() as client:
-      res = client.get('/logout', follow_redirects=True)
+  def test_user_model(self):
+    """Does basic model work?"""
 
-  def test_login(self):
-    with app.test_client() as client:
-      resp = client.post('/register', data={'user':'thur', 'password': 'thur', 'confirm': 'thur'})
-      html = resp.get_data(as_text=True)
-      self.assertIn('Hello thur', html)
+    u = User(
+        username="testuser",
+        password="HASHED_PASSWORD"
+    )
+
+    db.session.add(u)
+    db.session.commit()
+
+    # User should have no messages & no followers
+    self.assertEqual((u.id), 1)
+
+  # def test_logout(self):
+  #   with app.test_client() as client:
+  #     res = client.get('/logout', follow_redirects=True)
+
+  # def test_profile_page(self):
+  #   with app.test_client() as client:
+
+
+  # def test_login(self):
+  #   with app.test_client() as client:
+  #     resp = client.post('/register', data={'user':'thur', 'password': 'thur', 'confirm': 'thur'})
+  #     html = resp.get_data(as_text=True)
+  #     self.assertIn('Hello thur', html)
 
 
   # def login(client, username, password):
