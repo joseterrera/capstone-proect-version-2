@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc123456"
+app.config["SECRET_KEY"] = "abc123456ttt"
 
 connect_db(app)
 # db.create_all()
@@ -29,6 +29,7 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 @app.route("/")
 def homepage():
     """Show homepage with links to site areas."""
+    # raise 'here'
     return redirect("/register")
 
 
@@ -219,7 +220,8 @@ def update_playlist(playlist_id):
     playlist = Playlist.query.get(playlist_id)
 
     if "user_id" not in session or playlist.user_id != session['user_id']:
-        raise Unauthorized()
+        flash("You must be logged in to view!")
+        return redirect("/login")
 
     form = PlaylistForm(obj=playlist)
 
