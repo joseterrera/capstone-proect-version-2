@@ -1,66 +1,3 @@
-# """User model tests."""
-
-# # run these tests like:
-# #
-# #    python -m unittest test_user_model.py
-
-
-# import os
-# from unittest import TestCase
-
-# from models import db, User, Playlist
-
-# # BEFORE we import our app, let's set an environmental variable
-# # to use a different database for tests (we need to do this
-# # before we import our app, since that will have already
-# # connected to the database
-
-# os.environ['DATABASE_URL'] = "postgresql:///new_music-test"
-
-
-# # Now we can import app
-
-# from app import app
-
-# # Create our tables (we do this here, so we only create the tables
-# # once for all tests --- in each test, we'll delete the data
-# # and create fresh new clean test data
-
-# db.create_all()
-
-
-# class UserModelTestCase(TestCase):
-#     """Test views for messages."""
-
-#     def setUp(self):
-#         """Create test client, add sample data."""
-
-#         User.query.delete()
-#         Playlist.query.delete()
-
-#         self.client = app.test_client()
-
-#     def test_user_model(self):
-#         """Does basic model work?"""
-
-#         u = User(
-#             username="testuser",
-#             password="HASHED_PASSWORD"
-#         )
-
-#         p = Playlist(
-#           name="One playlist"
-#         )
-
-#         db.session.add(u)
-#         db.session.add(p)
-#         db.session.commit()
-
-#         # User should have no messages & no followers
-#         self.assertEqual(u.id, 1)
-#         # self.assertEqual(len(p), 1)
-
-
 import os
 from unittest import TestCase
 from flask import session
@@ -71,10 +8,11 @@ from flask import session
 # Use test database and don't clutter tests with SQL
 os.environ['DATABASE_URL'] = "postgresql:///new_music-test"
 from app import app
-from models import db, connect_db, Playlist, User
+from models import db, connect_db, Playlist, User, PlaylistSong
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music-test'
 # app.config['SQLALCHEMY_ECHO'] = False
 app.config['WTF_CSRF_ENABLED'] = False
+
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
@@ -129,6 +67,61 @@ class musicAppTestCases(TestCase):
 
     # User should have no messages & no followers
     self.assertEqual((u.id), 1)
+
+  def test_playlist_model(self):
+    u = User(
+        username="testuser",
+        password="HASHED_PASSWORD"
+    )
+
+    p = Playlist(name='Spring', user_id=1)
+    db.session.add(p)
+    db.session.add(u)
+    db.session.commit()
+
+    # User should have id 1, and 1 playlist
+    self.assertEqual((p.user_id), 1)
+    self.assertEqual(len(u.playlists), 1)
+
+  def test_session_info_set(self):
+    with app.test_client() as client:
+      # Any changes to session should go in here:
+      u = User(
+        username="testuser",
+        password="HASHED_PASSWORD"
+      )
+      db.session.add(u)
+      db.session.commit()
+      with client.session_transaction() as change_session:
+          change_session['user_id'] = 1
+
+      # Now those changes will be in Flask's `session`
+      resp = client.get("/")
+      self.assertEqual(resp.location, "http://localhost/register")
+      self.assertEqual(resp.status_code, 302)
+      self.assertEqual(session['user_id'], 1)
+
+
+  # def test_session_info(self):
+  #   with app.test_client() as client:
+  #     u = User(
+  #       username="testuser",
+  #       password="HASHED_PASSWORD"
+  #     )
+  #     db.session.add(u)
+  #     db.session.commit()
+  #     resp = client.get("/")
+
+
+  #     self.assertEqual(resp.status_code, 302)
+  #     self.assertEqual(session['user_id'], 1)
+
+  # def test_invalid_username_signup(self):
+  #       user = User.register("test@test.com", "password")
+  #       uid = 1
+  #       user.id = uid
+  #       session['user_id'] = request.form["user_id"]
+  #       self.assertEqual((user.id), 1)
 
   # def test_logout(self):
   #   with app.test_client() as client:
