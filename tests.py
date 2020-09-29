@@ -12,7 +12,8 @@ from models import db, connect_db, Playlist, User, PlaylistSong
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music-test'
 # app.config['SQLALCHEMY_ECHO'] = False
 app.config['WTF_CSRF_ENABLED'] = False
-
+app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
@@ -94,85 +95,7 @@ class musicAppTestCases(TestCase):
       db.session.commit()
       with client.session_transaction() as change_session:
           change_session['user_id'] = 1
-
-      # Now those changes will be in Flask's `session`
       resp = client.get("/")
       self.assertEqual(resp.location, "http://localhost/register")
       self.assertEqual(resp.status_code, 302)
       self.assertEqual(session['user_id'], 1)
-
-
-  # def test_session_info(self):
-  #   with app.test_client() as client:
-  #     u = User(
-  #       username="testuser",
-  #       password="HASHED_PASSWORD"
-  #     )
-  #     db.session.add(u)
-  #     db.session.commit()
-  #     resp = client.get("/")
-
-
-  #     self.assertEqual(resp.status_code, 302)
-  #     self.assertEqual(session['user_id'], 1)
-
-  # def test_invalid_username_signup(self):
-  #       user = User.register("test@test.com", "password")
-  #       uid = 1
-  #       user.id = uid
-  #       session['user_id'] = request.form["user_id"]
-  #       self.assertEqual((user.id), 1)
-
-  # def test_logout(self):
-  #   with app.test_client() as client:
-  #     res = client.get('/logout', follow_redirects=True)
-
-  # def test_profile_page(self):
-  #   with app.test_client() as client:
-
-
-  # def test_login(self):
-  #   with app.test_client() as client:
-  #     resp = client.post('/register', data={'user':'thur', 'password': 'thur', 'confirm': 'thur'})
-  #     html = resp.get_data(as_text=True)
-  #     self.assertIn('Hello thur', html)
-
-
-  # def login(client, username, password):
-  #   return client.post('/login', data=dict(
-  #       username=username,
-  #       password=password
-  #   ), follow_redirects=True)
-
-
-  # def logout(client):
-  #   return client.get('/logout', follow_redirects=True)
-
-  # def test_login_logout(client):
-  #   """Make sure login and logout works."""
-
-  #   rv = login(client, app.config['USERNAME'], app.config['PASSWORD'])
-  #   assert b'You were logged in' in rv.data
-
-  #   rv = logout(client)
-  #   assert b'You were logged out' in rv.data
-
-  #   rv = login(client, app.config['USERNAME'] + 'x', app.config['PASSWORD'])
-  #   assert b'Invalid username' in rv.data
-
-  #   rv = login(client, app.config['USERNAME'], app.config['PASSWORD'] + 'x')
-  #   assert b'Invalid password' in rv.data
-
-  # def test_client_login(self):
-  #   with app.test_client() as client:
-  #     resp = client.post('/register', data={'user':'thur', 'password': 'thur', 'confirm': 'thur'})
-  #     html = resp.get_data(as_text=True)
-  #     self.assertIn('Hello thur', html)
-
-      
-
-      # # self.assertEqual(res.status_code, 200)
-
-
-      # # if session['user_id']:
-      # self.assertEqual(session['user_id'], 1)
