@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = os.environ.get['SECRET_KEY', 'abc123456']
+app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', 'abc123456')
 
 # app.config["SECRET_KEY"] = "abc123456"
 
