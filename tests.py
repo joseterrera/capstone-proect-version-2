@@ -2,15 +2,10 @@ import os
 from unittest import TestCase
 from flask import session
 
-
-
-
 # Use test database and don't clutter tests with SQL
 os.environ['DATABASE_URL'] = "postgresql:///new_music-test"
 from app import app
 from models import db, connect_db, Playlist, User, PlaylistSong
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music-test'
-# app.config['SQLALCHEMY_ECHO'] = False
 app.config['WTF_CSRF_ENABLED'] = False
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
