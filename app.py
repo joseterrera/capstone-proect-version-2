@@ -13,13 +13,11 @@ my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///flask-heroku')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///new_music')
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', 'abc123456')
-
-# app.config["SECRET_KEY"] = "abc123456"
 
 connect_db(app)
 # db.create_all()
@@ -84,8 +82,7 @@ def login():
     session["spotify_access_token"] = my_spotify_client.access_token
     session["spotify_access_token_expires"] = my_spotify_client.access_token_expires
     session["spotify_access_token_did_expire"] = my_spotify_client.access_token_did_expire
-    session["user_id"] = user.id  # keep logged in
-    # raise 'login'
+    session["user_id"] = user.id  
     return redirect(f"/users/profile/{user.id}")
 
 
@@ -98,12 +95,6 @@ def profile(id):
     if "user_id" not in session or id != session['user_id']:
         flash("You must be logged in to view!")
         return redirect("/login")
-    # if "user_id" not in session:
-    #     flash("You must be logged in to view!")
-    #     return redirect("/")
-    # elif "user_id" != id:
-    #     raise 
-
     else:
         id = session["user_id"]
         user = User.query.get_or_404(id)
@@ -124,8 +115,6 @@ def logout():
     """Logs user out and redirects to homepage."""
     session.pop("user_id")
     return redirect("/login")
-
-
 
 
 @app.route("/playlists/<int:playlist_id>", methods=['POST', 'GET'])
@@ -185,13 +174,15 @@ def show_form(playlist_id):
             album_name = item['album_name']
             album_image = item['album_image']
             artists = item['artists']
-            print(title)
+            # print(title)
             new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
+            repeated = []
+            repeated.append(1)
+
             for i in playlist.song: 
-                if i.title == new_songs.title:
-                    repeated = []
+                if i.spotify_id == new_songs.spotify_id:
                     repeated.append(new_songs.title)
-            raise 'here'
+       
     
                     # flash(f"{repeated} already on this playlist")
                     # playlist.song.remove(i)
@@ -205,10 +196,12 @@ def show_form(playlist_id):
      
             db.session.add(new_songs)
             db.session.commit()
+         
 
             playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
             db.session.add(playlist_song)
             db.session.commit()
+        # raise 'here'
         return redirect(f'/playlists/{playlist_id}')
 
 
