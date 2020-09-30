@@ -16,7 +16,9 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc123456"
+app.config["SECRET_KEY"] = os.environ.get['SECRET_KEY', 'abc123456']
+
+# app.config["SECRET_KEY"] = "abc123456"
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'postgres://btoxzhumpnhszd:5ab5ec42ef27858d459fec9f5d53f92b4275525d934873eb1afc3e2f85b4f0b9@ec2-107-20-104-234.compute-1.amazonaws.com:5432/d9gusnhqdl1n7n', 'postgres:///flask-heroku')
 
