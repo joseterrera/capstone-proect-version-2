@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', 'abc123456')
+app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', 'abc1234567')
 
 connect_db(app)
 # db.create_all()
@@ -131,6 +131,7 @@ def show_playlist(playlist_id):
         song_id = form['song']
         song_to_delete = PlaylistSong.query.get(song_id)
         db.session.delete(song_to_delete)
+        # raise 'here'
         db.session.commit()
     return render_template("playlist/playlist.html", playlist=playlist, songs=songs)
 
@@ -153,12 +154,8 @@ def show_form(playlist_id):
     if form.validate_on_submit() and checkbox_form['form'] == 'search_songs': 
         track_data = form.track.data
         api_call_track = my_spotify_client.search(track_data,'track')   
-        for song in api_call_track['tracks']['items']:
-          print(song['id'])
-          print('$$$$$$$$$$$$$$$')
-          print('$$$$$$$$$$$$$$$')
-          print('$$$$$$$$$$$$$$$')
 
+        # get search results, don't inclue songs that are on playlist already
         for item in api_call_track['tracks']['items']:
           if item['id'] not in songs_on_playlist_set:
             images = [ image['url'] for image in item['album']['images'] ]
@@ -172,9 +169,7 @@ def show_form(playlist_id):
                 'artists': ", ".join(artists),
                 'url': urls
             })
-        # raise 'here' 
 
- 
     # search results checkbox form
     if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
         list_of_picked_songs = checkbox_form.getlist('track')
