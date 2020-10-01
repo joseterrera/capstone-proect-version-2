@@ -31,7 +31,6 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 @app.route("/")
 def homepage():
     """Show homepage with links to site areas."""
-    # raise 'here'
     return redirect("/register")
 
 
@@ -40,7 +39,6 @@ def register():
     """Register user: produce form & handle form submission."""
     if "user_id" in session:
         return redirect(f"/users/profile/{session['user_id']}")
-
     form = RegisterForm()
     name = form.username.data
     pwd = form.password.data
@@ -185,37 +183,14 @@ def show_form(playlist_id):
             artists = item['artists']
             # print(title)
             new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
-            
-           
-            # raise 'here'
-
-            # for i in playlist.song: 
-            #     if i.spotify_id == new_songs.spotify_id:
-            #         repeated.append(new_songs.title)
-       
-    
-                    # flash(f"{repeated} already on this playlist")
-                    # playlist.song.remove(i)
-                    # db.session.add(new_songs)
-                    # db.session.commit()
-                    # playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
-                    # db.session.add(playlist_song)
-                    # db.session.commit()
-                    # # return redirect(f'/playlists/{playlist_id}/search')
-                    # return redirect(f'/playlists/{playlist_id}')
-     
             db.session.add(new_songs)
             db.session.commit()
-         
-
+            # add new song to its playlist
             playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
             db.session.add(playlist_song)
             db.session.commit()
-        # raise 'here'    
+  
         return redirect(f'/playlists/{playlist_id}')
-
-
-
     def serialize(obj):
         return json.dumps(obj)
     return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong, serialize=serialize)
@@ -223,20 +198,15 @@ def show_form(playlist_id):
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])
 def update_playlist(playlist_id):
     """Show update form and process it."""
-
     playlist = Playlist.query.get(playlist_id)
-
     if "user_id" not in session or playlist.user_id != session['user_id']:
         flash("You must be logged in to view!")
         return redirect("/login")
-
     form = PlaylistForm(obj=playlist)
-
     if form.validate_on_submit():
         playlist.name = form.name.data
         db.session.commit()
         return redirect(f"/users/profile/{session['user_id']}")
-    
     return render_template("/playlist/edit.html", form=form, playlist=playlist)
 
 
