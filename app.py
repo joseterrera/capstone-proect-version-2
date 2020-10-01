@@ -143,13 +143,24 @@ def show_form(playlist_id):
     form = SearchSongsForm()
     resultsSong = []
     checkbox_form = request.form
+
+    list_of_songs_spotify_id_on_playlist = []
+    for song in playlist.songs:
+      list_of_songs_spotify_id_on_playlist.append(song.spotify_id)
+    songs_on_playlist_set = set(list_of_songs_spotify_id_on_playlist)
     
-    # search form
+
     if form.validate_on_submit() and checkbox_form['form'] == 'search_songs': 
         track_data = form.track.data
         api_call_track = my_spotify_client.search(track_data,'track')   
+        for song in api_call_track['tracks']['items']:
+          print(song['id'])
+          print('$$$$$$$$$$$$$$$')
+          print('$$$$$$$$$$$$$$$')
+          print('$$$$$$$$$$$$$$$')
 
         for item in api_call_track['tracks']['items']:
+          if item['id'] not in songs_on_playlist_set:
             images = [ image['url'] for image in item['album']['images'] ]
             artists = [ artist['name'] for artist in item['artists'] ]
             urls = item['album']['external_urls']['spotify']
@@ -161,37 +172,50 @@ def show_form(playlist_id):
                 'artists': ", ".join(artists),
                 'url': urls
             })
+        # raise 'here' 
 
-    list_of_songs_spotify_id_on_playlist = []
-    for song in playlist.songs:
-      list_of_songs_spotify_id_on_playlist.append(song.spotify_id)
-    song_set = set(list_of_songs_spotify_id_on_playlist)
-    
+ 
+    # search results checkbox form
     if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
-
         list_of_picked_songs = checkbox_form.getlist('track')
         # map each item in list of picked songs
         jsonvalues = [ json.loads(item) for item in  list_of_picked_songs ]
 
-        for song in jsonvalues:
-          # print(song['spotify_id'])
-          if song['spotify_id'] not in song_set:
-            raise('here')
 
-            for item in jsonvalues:
-                title = item['title']
-                spotify_id = item['spotify_id']
-                album_name = item['album_name']
-                album_image = item['album_image']
-                artists = item['artists']
-                # print(title)
-                new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
-                db.session.add(new_songs)
-                db.session.commit()
+        for item in jsonvalues:
+            title = item['title']
+            spotify_id = item['spotify_id']
+            album_name = item['album_name']
+            album_image = item['album_image']
+            artists = item['artists']
+            # print(title)
+            new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
+            
+           
+            # raise 'here'
 
-                playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
-                db.session.add(playlist_song)
-                db.session.commit()
+            # for i in playlist.song: 
+            #     if i.spotify_id == new_songs.spotify_id:
+            #         repeated.append(new_songs.title)
+       
+    
+                    # flash(f"{repeated} already on this playlist")
+                    # playlist.song.remove(i)
+                    # db.session.add(new_songs)
+                    # db.session.commit()
+                    # playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
+                    # db.session.add(playlist_song)
+                    # db.session.commit()
+                    # # return redirect(f'/playlists/{playlist_id}/search')
+                    # return redirect(f'/playlists/{playlist_id}')
+     
+            db.session.add(new_songs)
+            db.session.commit()
+         
+
+            playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
+            db.session.add(playlist_song)
+            db.session.commit()
         # raise 'here'    
         return redirect(f'/playlists/{playlist_id}')
 
