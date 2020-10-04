@@ -1,7 +1,21 @@
-This repository is an application where users can register/login, access a private profile page where they can search songs from Spotify and add them to their playlist. They are able to create playlists, delete them, edit them. Users are able to add new songs, and deleting them as well. 
+## Find New Music
+
+
+### What does this app do?
+
+This app uses Spotify's api and enables you to search for artists and playlists.  The goal is to find new music using spotify’s api.
+
+It allows user to sign up/login and log out. Each user will have a profile page where they can add playlists, edit them, delete them. To each playlist, they can add songs, and delete those songs.
+  
+
+### Resources
+  
+This app is built using Flask to build the routes, and postgres to build tables.
 
 To use the spotify api, I found this [tutorial](https://www.youtube.com/watch?v=xdq6Gz33khQ) most useful. They use Jupyter, and on this app, I adapt their setup to this flask app. When setting up this app, you would need to add a file api.py with your spotify client_id and client_secret.
 
+
+### To install this project
 
 ### Set up Virtual Environment
 
