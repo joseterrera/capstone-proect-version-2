@@ -1,6 +1,6 @@
-This repository features an application where users can register/login, access a private page where they can search songs from Spotify and add them to their playlist. They are able to create playlists, delete them, edit them. Users are able to add new songs, and deleting them as well. 
+This repository is an application where users can register/login, access a private profile page where they can search songs from Spotify and add them to their playlist. They are able to create playlists, delete them, edit them. Users are able to add new songs, and deleting them as well. 
 
-To use the spotify api, I found this tutorial most useful. They use Jupyter, and on this app, I adapt their setup to this flask app. When setting up this app, you would need to add a file api.py with your spotify client_id and client_secret.
+To use the spotify api, I found this [tutorial](https://www.youtube.com/watch?v=xdq6Gz33khQ) most useful. They use Jupyter, and on this app, I adapt their setup to this flask app. When setting up this app, you would need to add a file api.py with your spotify client_id and client_secret.
 
 
 ### Set up Virtual Environment
