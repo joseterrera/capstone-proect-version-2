@@ -1,9 +1,3 @@
-def pick_from_list(keys,dict):
-  return { your_key: dict[your_key] for your_key in keys }
-
-def pick(dict,*keys):
-  return pick_from_list(keys,dict)
-
 def first(iterable, default = None, condition = lambda x: True):
     """
     Returns the first item in the `iterable` that

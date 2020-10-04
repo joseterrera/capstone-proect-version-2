@@ -4,7 +4,7 @@ from werkzeug.exceptions import Unauthorized
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import  PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
 from spotify import spotify
-from helpers import pick, pick_from_list, first
+from helpers import first
 import json
 import os
 from api import CLIENT_ID, CLIENT_SECRET
