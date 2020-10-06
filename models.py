@@ -69,9 +69,7 @@ class Playlist(db.Model):
     play_song_xref = db.relationship('PlaylistSong', backref='playlists', passive_deletes=True)
     
     song = db.relationship('Song', secondary='playlist_song', backref='playlists', passive_deletes=True)
-   
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
     user =   db.relationship("User",  backref="playlists")
 
 class Song(db.Model):
