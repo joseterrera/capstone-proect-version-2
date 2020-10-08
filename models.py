@@ -66,20 +66,23 @@ class Playlist(db.Model):
 
     name = db.Column(db.String(100), nullable=False)
     
-    play_s = db.relationship('PlaylistSong', backref='Playlist')
+    play_song_xref = db.relationship('PlaylistSong', backref='playlists', passive_deletes=True)
     
-    song = db.relationship('Song', secondary='playlist_song', backref='playlists')
-   
+    song = db.relationship('Song', secondary='playlist_song', backref='playlists', passive_deletes=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
     user =   db.relationship("User",  backref="playlists")
 
 class Song(db.Model):
     """Song."""
     __tablename__= "songs"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(30), nullable=False)
-    artist = db.Column(db.String(20), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    artists = db.Column(db.String(255), nullable=False)
+    spotify_id = db.Column(db.String(255), nullable=False)
+    album_name = db.Column(db.String(255), nullable=False)
+    album_image = db.Column(db.String(255), nullable=False)
+    play_song_xref = db.relationship('PlaylistSong', backref='songs', passive_deletes=True)
+
     play_song = db.relationship(
         'Playlist',
         secondary="playlist_song",
@@ -93,8 +96,9 @@ class Song(db.Model):
 class PlaylistSong(db.Model):
     """Mapping of a playlist to a song."""
     __tablename__ = "playlist_song"
-    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), primary_key=True)
-    song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id', ondelete="CASCADE"))
+    song_id = db.Column(db.Integer, db.ForeignKey('songs.id', ondelete="CASCADE"))
 
 
 

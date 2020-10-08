@@ -1,33 +1,37 @@
-"""Example flask app that stores passwords hashed with Bcrypt. Yay!"""
-
-from flask import Flask, render_template, redirect, session, flash, request
+from flask import Flask, render_template, redirect, session, flash, request, url_for
 from flask_debugtoolbar import DebugToolbarExtension
+from werkzeug.exceptions import Unauthorized
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
-from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm, DeleteForm
+from forms import  PlaylistForm, RegisterForm, LoginForm, DeleteForm, SearchSongsForm
 from spotify import spotify
-import requests
+from helpers import first
 import json
+import os
 from api import CLIENT_ID, CLIENT_SECRET
 
 my_spotify_client = spotify.Spotify(CLIENT_ID, CLIENT_SECRET)
 
+
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///new_music')
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///new_music"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "abc123"
+app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', 'abc12345678')
 
 connect_db(app)
-db.create_all()
+# db.create_all()
 
-# toolbar = DebugToolbarExtension(app)
+
+toolbar = DebugToolbarExtension(app)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
 
 
 @app.route("/")
 def homepage():
     """Show homepage with links to site areas."""
     return redirect("/register")
-    # return render_template("index.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -35,7 +39,6 @@ def register():
     """Register user: produce form & handle form submission."""
     if "user_id" in session:
         return redirect(f"/users/profile/{session['user_id']}")
-
     form = RegisterForm()
     name = form.username.data
     pwd = form.password.data
@@ -45,17 +48,12 @@ def register():
         return redirect('/login')
 
     if form.validate_on_submit():
-       
-
         user = User.register(name, pwd)
         db.session.add(user)
         db.session.commit()
-
         session["user_id"] = user.id
-
-        # on successful login, redirect to secret page
+        # on successful login, redirect to profile page
         return redirect(f"/users/profile/{user.id}")
-
     else:
         return render_template("/users/register.html", form=form)
 
@@ -65,14 +63,11 @@ def login():
     """Produce login form or handle login."""
 
     form = LoginForm()
-
     if not form.validate_on_submit():
         return render_template("users/login.html", form=form)
     # otherwise
-
     name = form.username.data
     pwd = form.password.data
-
     # authenticate will return a user or False
     user = User.authenticate(name, pwd)
 
@@ -85,24 +80,22 @@ def login():
     session["spotify_access_token"] = my_spotify_client.access_token
     session["spotify_access_token_expires"] = my_spotify_client.access_token_expires
     session["spotify_access_token_did_expire"] = my_spotify_client.access_token_did_expire
-    session["user_id"] = user.id  # keep logged in
+    session["user_id"] = user.id  
     return redirect(f"/users/profile/{user.id}")
 
-
-# end-login    
 
 
 @app.route("/users/profile/<int:id>",  methods=["GET", "POST"])
 def profile(id):
     """Example hidden page for logged-in users only."""
 
-
-    if "user_id" not in session:
+    # raise 'here'
+    if "user_id" not in session or id != session['user_id']:
         flash("You must be logged in to view!")
-        return redirect("/")
-
+        return redirect("/login")
     else:
         id = session["user_id"]
+        user = User.query.get_or_404(id)
         form = PlaylistForm()
         user = User.query.get_or_404(id)
         playlists = Playlist.query.filter_by(user_id=id).all()
@@ -119,230 +112,104 @@ def profile(id):
 @app.route("/logout")
 def logout():
     """Logs user out and redirects to homepage."""
-
     session.pop("user_id")
-
-    return redirect("/")
-
+    return redirect("/login")
 
 
-
-@app.route("/playlists/<int:playlist_id>")
+@app.route("/playlists/<int:playlist_id>", methods=['POST', 'GET'])
 def show_playlist(playlist_id):
     """Show detail on specific playlist."""
-
-    # ADD THE NECESSARY CODE HERE FOR THIS ROUTE TO WORK
     playlist = Playlist.query.get_or_404(playlist_id)
+    if "user_id" not in session or  playlist.user_id != session['user_id']:
+        flash("You must be logged in to view!")
+        return redirect("/login")
+    
     songs = PlaylistSong.query.filter_by(playlist_id=playlist_id)
-
-    for b in songs:
-        print('testing',b)
-
-
-    return render_template("playlist/playlist.html", playlist=playlist)
-
-
-# @app.route("/playlists/add", methods=["GET", "POST"])
-# def add_playlist():
-#     """Handle add-playlist form:
-
-#     - if form not filled out or invalid: show form
-#     - if valid: add playlist to SQLA and redirect to list-of-playlists
-#     """
-#     form = PlaylistForm()
-
-#     if form.validate_on_submit():
-#         name = form.name.data
-#         description = form.description.data
-#         new_playlist = Playlist(name=name, description=description)
-#         db.session.add(new_playlist)
-#         db.session.commit()
-#         # flash(f"Added {name} at {description}")
-#         return redirect("/profile")
-
-#     return render_template("playlist/new_playlist.html", form=form)
-
-    # ADD THE NECESSARY CODE HERE FOR THIS ROUTE TO WORK
-
-
-##############################################################################
-# Song routes
-
-
-@app.route("/songs")
-def show_all_songs():
-    """Show list of songs."""
-
-    songs = Song.query.all()
-    return render_template("song/songs.html", songs=songs)
-
-
-@app.route("/songs/<int:song_id>")
-def show_song(song_id):
-    """return a specific song"""
-
-    # ADD THE NECESSARY CODE HERE FOR THIS ROUTE TO WORK
-    song = Song.query.get_or_404(song_id)
-    playlists = song.play_song
-
-
-    return render_template("song/song.html", song=song, playlists=playlists)
-
-
-def set_spotify_token(session):
-    my_spotify_client.access_token = session['spotify_access_token']
-    my_spotify_client.access_token_expires = session['spotify_access_token_expires']
-    my_spotify_client.access_token_did_expire = session['spotify_access_token_did_expire']
-
-@app.route("/songs/add", methods=["GET", "POST"])
-def add_song():
-    """Handle add-song form:
-
-    - if form not filled out or invalid: show form
-    - if valid: add playlist to SQLA and redirect to list-of-songs
-    """
-    # ADD THE NECESSARY CODE HERE FOR THIS ROUTE TO WORK
-    form = SongForm()
-    # songs = Song.query.all()
-
-    if form.validate_on_submit():
-        title = request.form['title']
-        artist = request.form['artist']
-        new_song = Song(title=title, artist=artist)
-        db.session.add(new_song)
+    form = request.form
+    if request.method == 'POST' and form['remove'] and form['song']:
+        song_id = form['song']
+        song_to_delete = PlaylistSong.query.get(song_id)
+        db.session.delete(song_to_delete)
+        # raise 'here'
         db.session.commit()
-        return redirect("/songs")
-
-    set_spotify_token(session)
-    # test = my_spotify_client.search('all you need is love','track')
-    res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-    # data = res.json()
-    # print('***************data**************')
-    # print('***************data**************')
-    # print('***************data**************')
-    dataj = json.dumps(res)
+    return render_template("playlist/playlist.html", playlist=playlist, songs=songs)
 
 
-    return render_template("song/new_song.html", form=form, dataj=dataj)
-    
-    # return render_template("song/new_song.html", form=form,test=json.dumps(test))
-
-
-
-@app.route("/playlists/<int:playlist_id>/add-song", methods=["GET", "POST"])
-def add_song_to_playlist(playlist_id):
-    """Add a playlist and redirect to list."""
-    
-    playlist = Playlist.query.get_or_404(playlist_id)
-    form = NewSongForPlaylistForm()
-
-    # Restrict form to songs not already on this playlist
-
-    curr_on_playlist = [s.id for s in playlist.songs]
-    form.song.choices = (db.session.query(Song.id, Song.title).filter(Song.id.notin_(curr_on_playlist)).all())
-
-    if form.validate_on_submit():
-
-        # This is one way you could do this ...
-        playlist_song = PlaylistSong(song_id=form.song.data, playlist_id=playlist_id)
-        db.session.add(playlist_song)
-
-        # Here's another way you could that is slightly more ORM-ish:
-        #
-        # song = Song.query.get(form.song.data)
-        # playlist.songs.append(song)
-
-        # Either way, you have to commit:
-        db.session.commit()
-
-        return redirect(f"/playlists/{playlist_id}")
-
-    return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
-
-
-@app.route('/playlists/<int:playlist_id>/add-songs', methods=["GET", "POST"])
-def add_new_songs(playlist_id):
+@app.route('/playlists/<int:playlist_id>/search', methods=["GET", "POST"])
+def show_form(playlist_id):
+    """Show form that searches new form, and show results"""
     playlist = Playlist.query.get(playlist_id)
+    play_id  = playlist_id
+    form = SearchSongsForm()
+    resultsSong = []
+    checkbox_form = request.form
 
-    if "user_id" not in session or playlist.user_id != session['user_id']:
-        raise Unauthorized()
+    list_of_songs_spotify_id_on_playlist = []
+    for song in playlist.songs:
+      list_of_songs_spotify_id_on_playlist.append(song.spotify_id)
+    songs_on_playlist_set = set(list_of_songs_spotify_id_on_playlist)
     
-    set_spotify_token(session)
-    req = request.args
-    print('**************************')
-    print('**************************')
-    print('**************************')
-    
-    print('req',req)
-    track = request.args['track']
-    print('here@@@@@@@@@')
-    print('here@@@@@@@@@')
-    
-    print('track', track)
 
-    test = my_spotify_client.search(track,'track')
+    if form.validate_on_submit() and checkbox_form['form'] == 'search_songs': 
+        track_data = form.track.data
+        api_call_track = my_spotify_client.search(track_data,'track')   
 
-    res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-    # res = my_spotify_client.get_track(track)
+        # get search results, don't inclue songs that are on playlist already
+        for item in api_call_track['tracks']['items']:
+          if item['id'] not in songs_on_playlist_set:
+            images = [ image['url'] for image in item['album']['images'] ]
+            artists = [ artist['name'] for artist in item['artists'] ]
+            urls = item['album']['external_urls']['spotify']
+            resultsSong.append({
+                'title' : item['name'],
+                'spotify_id': item['id'],
+                'album_name': item['album']['name'], 
+                'album_image': first(images,''),
+                'artists': ", ".join(artists),
+                'url': urls
+            })
 
-    dataj = json.dumps(res)
+    # search results checkbox form
+    if 'form' in checkbox_form and checkbox_form['form'] == 'pick_songs':
+        list_of_picked_songs = checkbox_form.getlist('track')
+        # map each item in list of picked songs
+        jsonvalues = [ json.loads(item) for item in  list_of_picked_songs ]
 
-    return render_template("song/add_song.html", playlist=playlist, dataj=dataj)
 
-
-# @app.route('/playlists/<int:playlist_id>/search', methods=["GET", "POST"])
-# def search_new_songs(playlist_id):
-#     """Show page that searches new songs"""
-
-#     playlist = Playlist.query.get(playlist_id)
-#     return render_template('song/search_new_songs.html', playlist=playlist)
-
+        for item in jsonvalues:
+            title = item['title']
+            spotify_id = item['spotify_id']
+            album_name = item['album_name']
+            album_image = item['album_image']
+            artists = item['artists']
+            # print(title)
+            new_songs = Song(title=title, spotify_id=spotify_id, album_name=album_name, album_image=album_image, artists=artists)
+            db.session.add(new_songs)
+            db.session.commit()
+            # add new song to its playlist
+            playlist_song = PlaylistSong(song_id=new_songs.id, playlist_id=playlist_id)
+            db.session.add(playlist_song)
+            db.session.commit()
+  
+        return redirect(f'/playlists/{playlist_id}')
+    def serialize(obj):
+        return json.dumps(obj)
+    return render_template('song/search_new_songs.html', playlist=playlist, form=form, resultsSong=resultsSong, serialize=serialize)
 
 @app.route("/playlists/<int:playlist_id>/update", methods=["GET", "POST"])
 def update_playlist(playlist_id):
-    """Show page that updates playlist name"""
-
+    """Show update form and process it."""
     playlist = Playlist.query.get(playlist_id)
-
     if "user_id" not in session or playlist.user_id != session['user_id']:
-        raise Unauthorized()
-
+        flash("You must be logged in to view!")
+        return redirect("/login")
     form = PlaylistForm(obj=playlist)
+    if form.validate_on_submit():
+        playlist.name = form.name.data
+        db.session.commit()
+        return redirect(f"/users/profile/{session['user_id']}")
+    return render_template("/playlist/edit.html", form=form, playlist=playlist)
 
-
-
-    set_spotify_token(session)
-    # test = my_spotify_client.search('all you need is love','track')
-    
-    # req = request.args
-    # print('**************************')
-    # print('**************************')
-    # print('**************************')
-    
-    # print('req',req)
-    # track = request.args.get['track']
-    # print('here@@@@@@@@@')
-    # print('here@@@@@@@@@')
-    
-    # print('track', track)
-    res = my_spotify_client.get_track('68BTFws92cRztMS1oQ7Ewj')
-    # res = my_spotify_client.get_track(track)
-
-    dataj = json.dumps(res)
-    # data = res.json()
-    # print('***************data**************')
-    # print('***************data**************')
-    # print('***************data******
-
-
-    # if form.validate_on_submit():
-    #     playlist.name = form.name.data
-
-    #     db.session.commit()
-
-    #     return redirect(f"/users/profile/{session['user_id']}")
-
-    return render_template("/playlist/edit.html", form=form, playlist=playlist, dataj=dataj)
 
 
 @app.route("/playlists/<int:playlist_id>/delete", methods=["POST"])
